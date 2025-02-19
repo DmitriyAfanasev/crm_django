@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Мои приложения
+    "auth.apps.AuthConfig",
 ]
 
 MIDDLEWARE = [
