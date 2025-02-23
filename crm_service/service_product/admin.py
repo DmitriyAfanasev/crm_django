@@ -37,6 +37,10 @@ class ProductAdmin(admin.ModelAdmin):
         "final_cost",
         "status",
         "archived",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
     )
     list_display_links = ("pk", "name")
     ordering = ("pk",)
