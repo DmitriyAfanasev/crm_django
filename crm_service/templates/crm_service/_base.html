@@ -47,20 +47,22 @@
                 <span><i class="fas fa-user-check"></i></span><span class="px-1"> Активные клиенты</span>
             </a></li>
             {% endif %}
-            <li>
+           <li>
                 <hr>
             </li>
-            <li><a href="/accounts/logout" class="bar-item text-decoration-none px-3 py-3 d-block">
-                <span><i class="fas fa-sign-out-alt"></i></span><span class="px-1"> Выход</span>
-            </a></li>
-                    <li>
-                <hr>
-            </li>
-            <li><a href="/accounts/login" class="bar-item text-decoration-none px-3 py-3 d-block">
-                <span><i class="fas fa-sign-in-alt"></i></span><span class="px-1"> Войти</span>
-            </a></li>
+
+            {% if user.is_authenticated %}
+                <li><a href="/accounts/logout" class="bar-item text-decoration-none px-3 py-3 d-block">
+                    <span><i class="fas fa-sign-out-alt"></i></span><span class="px-1"> Выход</span>
+                </a></li>
+            {% else %}
+                <li><a href="/accounts/login" class="bar-item text-decoration-none px-3 py-3 d-block">
+                    <span><i class="fas fa-sign-in-alt"></i></span><span class="px-1"> Войти</span>
+                </a></li>
+            {% endif %}
         </ul>
     </div>
+
     <div class="content px-3 pt-4">
         {% block content %}{% endblock %}
     </div>
