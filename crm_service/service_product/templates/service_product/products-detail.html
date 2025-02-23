@@ -1,4 +1,4 @@
-{% extends "_base.html" %}
+{% extends "crm_service/_base.html" %}
 
 {% block content %}
 <h2 class="fw-bold">Детальная информация об услуге</h2>
@@ -7,11 +7,55 @@
     <div class="col">
         <div class="card border-dark shadow" style="background: #eee">
             <div class="card-body">
-                <h5 class="card-title fw-bold">{{ object.name }}</h5>
-                <p class="card-text">{{ object.description }}</p>
-                <div class="d-flex justify-content-end fw-bold">{{ object.cost }}руб</div>
-                <div class="d-flex justify-content-center fw-bold">
-                    <a href="/products/{{ object.pk }}/edit" class="btn btn-primary">Редактировать</a>
+                <h5 class="card-title fw-bold">{{ product.name }}</h5>
+                <p class="card-text">{{ product.description }}</p>
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Стоимость:</span>
+                    <span>{{ product.cost }} руб</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Скидка:</span>
+                    <span>{{ product.discount }}%</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Итоговая стоимость:</span>
+                    <span>{{ product.final_cost|floatformat:2 }} руб</span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Статус:</span>
+                    <span>
+                        {% if product.status == "active" %}
+                            Активна
+                        {% elif product.status == "inactive" %}
+                            Неактивна
+                        {% elif product.status == "in_development" %}
+                            В разработке
+                        {% endif %}
+                    </span>
+                </div>
+
+                {% if perms.superuser %}
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Архивирована:</span>
+                    <span>
+                        {% if product.archived %}
+                            Да
+                        {% else %}
+                            Нет
+                        {% endif %}
+                    </span>
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    {% if perms.service_product.change_product %}
+                        <a href="/products/{{ product.pk }}/edit" class="btn btn-primary">Редактировать</a>
+                    {% endif %}
+
+                    {% if perms.service_product.delete_product %}
+                        <a href="/products/{{ product.pk }}/delete" class="btn btn-danger">Удалить</a>
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -50,3 +50,11 @@ class ProductCreateView(CreateView):
         """
         form.instance.created_by = User.objects.get(id=self.request.user.pk)
         return super().form_valid(form)
+
+
+class ProductDetailView(DetailView):
+    """Представление для отображения деталей услуги."""
+
+    model: Product = Product
+    template_name: str = "service_product/products-detail.html"
+    context_object_name: str = "product"
