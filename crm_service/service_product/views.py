@@ -9,7 +9,7 @@ from django.db.models import QuerySet
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, DetailView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView
 
 from .forms import ProductCreateForm
 from .models import Product
@@ -58,3 +58,32 @@ class ProductDetailView(DetailView):
     model: Product = Product
     template_name: str = "service_product/products-detail.html"
     context_object_name: str = "product"
+
+
+class ProductUpdateView(UserPassesTestMixin, PermissionRequiredMixin, UpdateView):
+    """Представление для редактирования данных об услуге."""
+
+    permission_required = ("service_product.change_product",)
+    model: Product = Product
+    form_class: ProductCreateForm = ProductCreateForm
+    template_name: str = "service_product/products-edit.html"
+
+    def get_success_url(self) -> HttpResponseRedirect:
+        """При успешном редактировании, перенаправляет на страницу с деталями этой услуги."""
+        return reverse_lazy(
+            "service_product:service_detail", kwargs={"pk": self.object.pk}
+        )
+
+    def test_func(self) -> bool:
+        """
+        Проверка прав доступа для изменения услуг, а точнее такие проверки:
+            - если пользователь это суперюзер
+            - если пользователь имеет права на изменения услуг
+            иначе доступ будет закрыт.
+        """
+        self.object = self.get_object()
+        if self.request.user.is_superuser or self.request.user.has_perm(
+            "service_product.change_product"
+        ):
+            return True
+        return False
