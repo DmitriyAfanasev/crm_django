@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Мои приложения
     "accounts.apps.AccountsConfig",
+    "service_product.apps.ServiceProductConfig",
 ]
 
 MIDDLEWARE = [
