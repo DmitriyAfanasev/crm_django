@@ -10,22 +10,22 @@ from .models import Product
 @admin.action(description="Archived products")
 def make_archived(
     modeladmin: admin.ModelAdmin, request: HttpRequest, queryset: QuerySet
-):
-    """Action to archive products."""
+) -> None:
+    """Действие для админ панели для архивации услуги, удобно использовать вместо удаления."""
     queryset.update(archived=True)
 
 
 @admin.action(description="Unarchived products")
 def make_unarchived(
     modeladmin: admin.ModelAdmin, request: HttpRequest, queryset: QuerySet
-):
-    """Action to un archive products."""
+) -> None:
+    """Действие для разархивации услуг."""
     queryset.update(archived=False)
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    """Admin for Product model."""
+    """Админ модель для работы с услугами"""
 
     actions = [make_archived, make_unarchived]
     list_display = (
