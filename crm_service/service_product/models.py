@@ -1,40 +1,56 @@
 from django.utils.translation import gettext_lazy as _
-
 from django.db import models
+from django.db.models import (
+    CharField,
+    TextField,
+    PositiveSmallIntegerField,
+    FloatField,
+    BooleanField,
+)
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from mixins import TimestampMixin
 
 
 class Product(TimestampMixin, models.Model):
-    """Модель услуги для клиентов."""
+    """
+    Модель услуги для клиентов.
 
-    name = models.CharField(
+    Атрибуты:
+        name (str): Название услуги
+        description (str): Описание услуги
+        cost (float): Стоимость услуги
+        discount (int): Процент скидки на услугу (от 0 до 50)
+        status (str): Статус услуги (активна, неактивна, в разработке)
+        archived (bool): Флаг, указывающий, архивирована ли услуга
+    """
+
+    name: CharField = models.CharField(
         max_length=100,
         blank=False,
         null=False,
         db_index=True,
         verbose_name=_("Service name"),
     )
-    description = models.TextField(
+    description: TextField = models.TextField(
         blank=False,
         null=False,
         verbose_name=_("Service description"),
     )
-    cost = models.FloatField(
+    cost: FloatField = models.FloatField(
         validators=[MinValueValidator(0.0)],
         blank=False,
         null=False,
         verbose_name=_("Service cost"),
     )
-    discount = models.PositiveSmallIntegerField(
+    discount: PositiveSmallIntegerField = models.PositiveSmallIntegerField(
         default=0,
         validators=[MinValueValidator(0), MaxValueValidator(50)],
         blank=False,
         null=False,
         verbose_name=_("Discount percentage"),
     )
-    status = models.CharField(
+    status: CharField = models.CharField(
         max_length=20,
         default="inactive",
         blank=False,
@@ -46,18 +62,37 @@ class Product(TimestampMixin, models.Model):
             ("in_development", _("In-Development")),
         ],
     )
-    archived = models.BooleanField(default=False, verbose_name=_("Archived"))
+    archived: BooleanField = models.BooleanField(
+        default=False,
+        verbose_name=_("Archived"),
+    )
 
     class Meta:
-        verbose_name = _("Product")
-        verbose_name_plural = _("Products")
-        ordering = ("name", "created_at")
-        db_table = "service_products"
+        """
+        Метаданные модели.
+
+        Атрибуты:
+            verbose_name (str): Имя модели в единственном числе
+            verbose_name_plural (str): Имя модели во множественном числе
+            ordering (tuple): Порядок сортировки по умолчанию
+            db_table (str): Имя таблицы в базе данных
+        """
+
+        verbose_name: str = _("Product")
+        verbose_name_plural: str = _("Products")
+        ordering: tuple[str, str] = ("name", "created_at")
+        db_table: str = "service_products"
 
     def __str__(self) -> str:
+        """Возвращает строковое представление объекта, а точнее название услуги."""
         return self.name
 
     @property
     def final_cost(self) -> float:
-        """Рассчитывает итоговую стоимость с учётом скидки."""
+        """
+        Рассчитывает итоговую стоимость услуги с учётом скидки.
+
+        Возвращает:
+            float: Итоговая стоимость услуги.
+        """
         return self.cost * (1 - self.discount / 100)
