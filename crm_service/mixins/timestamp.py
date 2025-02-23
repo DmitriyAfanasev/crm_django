@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.db import models
 
@@ -10,12 +11,14 @@ class TimestampMixin(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         related_name="created_%(class)s",
+        verbose_name=_("created by"),
     )
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         related_name="updated_%(class)s",
+        verbose_name=_("updated by"),
     )
 
     class Meta:
