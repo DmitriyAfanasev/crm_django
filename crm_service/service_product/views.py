@@ -1,4 +1,5 @@
-from django.contrib.auth.models import User
+from django.contrib import messages
+from django.contrib.auth.models import User, Permission
 from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     PermissionRequiredMixin,
@@ -9,13 +10,19 @@ from django.db.models import QuerySet
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, DetailView, UpdateView
+from django.views.generic import (
+    ListView,
+    CreateView,
+    DetailView,
+    UpdateView,
+    DeleteView,
+)
 
 from .forms import ProductCreateForm
 from .models import Product
 
 
-class ProductListView(ListView):
+class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """
     Представление для списка всех услуг.
     Пагинация настроена по выводу 10 услуг по умолчанию.
@@ -23,7 +30,7 @@ class ProductListView(ListView):
     Так же фильтрация стоит по не архивированным услугам.
     """
 
-    permission_required = "service_product.view_product"
+    permission_required: tuple[Permission] = ("service_product.view_product",)
     model: Product = Product
     template_name: str = "service_product/products-list.html"
     queryset: QuerySet[Product, Product] = Product.objects.filter(archived=False)
@@ -31,7 +38,7 @@ class ProductListView(ListView):
     paginate_by: int = 10
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     """Представление для создания услуги."""
 
     model: Product = Product
@@ -52,7 +59,7 @@ class ProductCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     """Представление для отображения деталей услуги."""
 
     model: Product = Product
@@ -60,10 +67,12 @@ class ProductDetailView(DetailView):
     context_object_name: str = "product"
 
 
-class ProductUpdateView(UserPassesTestMixin, PermissionRequiredMixin, UpdateView):
+class ProductUpdateView(
+    UserPassesTestMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView
+):
     """Представление для редактирования данных об услуге."""
 
-    permission_required = ("service_product.change_product",)
+    permission_required: tuple[Permission,] = ("service_product.change_product",)
     model: Product = Product
     form_class: ProductCreateForm = ProductCreateForm
     template_name: str = "service_product/products-edit.html"
@@ -87,3 +96,15 @@ class ProductUpdateView(UserPassesTestMixin, PermissionRequiredMixin, UpdateView
         ):
             return True
         return False
+
+
+class ProductDeleteView(DeleteView, PermissionRequiredMixin):
+    permission_required: tuple[Permission,] = ("service_product.delete_product",)
+    model: Product = Product
+    context_object_name: str = "product"
+
+    def get_success_url(self) -> HttpResponseRedirect:
+        messages.success(
+            self.request, f"Удаление услуги: {self.object.name!r}, прошло успешно!"
+        )
+        return reverse_lazy("service_product:service_list")
