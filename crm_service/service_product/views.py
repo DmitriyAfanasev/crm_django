@@ -73,7 +73,7 @@ class ProductUpdateView(
     """Представление для редактирования данных об услуге."""
 
     permission_required: tuple[Permission,] = ("service_product.change_product",)
-    model: Product = Product
+    model: type[Product] = Product
     form_class: ProductCreateForm = ProductCreateForm
     template_name: str = "service_product/products-edit.html"
 
