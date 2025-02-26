@@ -5,6 +5,7 @@ from .views import (
     ProductCreateView,
     ProductDetailView,
     ProductUpdateView,
+    ProductDeleteView,
 )
 
 app_name = "service_product"
@@ -13,4 +14,5 @@ urlpatterns = [
     path("new/", ProductCreateView.as_view(), name="service_create"),
     path("<int:pk>/", ProductDetailView.as_view(), name="service_detail"),
     path("<int:pk>/edit/", ProductUpdateView.as_view(), name="service_edit"),
+    path("<int:pk>/delete/", ProductDeleteView.as_view(), name="service_delete"),
 ]
