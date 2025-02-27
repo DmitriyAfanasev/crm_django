@@ -6,6 +6,7 @@ from .views import (
     AdsCompanyDetailView,
     AdsCompanyDeleteView,
     AdsCompanyUpdateView,
+    AdsCompanyStatisticsView,
 )
 
 app_name: str = "ads"
@@ -16,4 +17,5 @@ urlpatterns: list[path] = [
     path("<int:pk>/", AdsCompanyDetailView.as_view(), name="ads_detail"),
     path("<int:pk>/delete/", AdsCompanyDeleteView.as_view(), name="ads_delete"),
     path("<int:pk>/edit/", AdsCompanyUpdateView.as_view(), name="ads_edit"),
+    path("statistic/", AdsCompanyStatisticsView.as_view(), name="ads_statistic"),
 ]

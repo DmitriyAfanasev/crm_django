@@ -7,6 +7,7 @@ from django.views.generic import (
     UpdateView,
     DetailView,
     DeleteView,
+    TemplateView,
 )
 
 from .models import AdsCompany
@@ -53,3 +54,7 @@ class AdsCompanyDeleteView(DeleteView):
     def get_success_url(self) -> HttpResponseRedirect:
         """При успешном удалении компании, перенаправляет на страницу со списком компаний."""
         return reverse_lazy("ads:ads_list")
+
+
+class AdsCompanyStatisticsView(TemplateView):
+    template_name = "ads/adscompany_statistic.html"
