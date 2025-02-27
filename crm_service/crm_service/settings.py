@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # Мои приложения
     "accounts.apps.AccountsConfig",
     "service_product.apps.ServiceProductConfig",
+    "ads.apps.AdsConfig",
 ]
 
 MIDDLEWARE = [
