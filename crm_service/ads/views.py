@@ -18,6 +18,7 @@ class AdsCompanyListView(ListView):
     """Представление для списка всех рекламных компаний в системе."""
 
     model: AdsCompany = AdsCompany
+    context_object_name: str = "ads"
 
 
 class AdsCompanyCreateView(CreateView):
@@ -27,10 +28,28 @@ class AdsCompanyCreateView(CreateView):
     form_class: AdsCompanyCreateForm = AdsCompanyCreateForm
 
     def get_success_url(self) -> HttpResponseRedirect:
-        """При успешном создании услуги, перенаправляет на страницу с деталями этой услуги."""
+        """При успешном создании компании, перенаправляет на страницу с детальной информации о компании."""
         return reverse_lazy("ads:ads_detail", kwargs={"pk": self.object.pk})
 
 
 class AdsCompanyDetailView(DetailView):
     model: AdsCompany = AdsCompany
     context_object_name: str = "company"
+
+
+class AdsCompanyUpdateView(UpdateView):
+    model: AdsCompany = AdsCompany
+    form_class: AdsCompanyCreateForm = AdsCompanyCreateForm
+    template_name_suffix = "-edit"
+
+    def get_success_url(self) -> HttpResponseRedirect:
+        """При успешном создании услуги, перенаправляет на страницу с деталями этой услуги."""
+        return reverse_lazy("ads:ads_detail", kwargs={"pk": self.object.pk})
+
+
+class AdsCompanyDeleteView(DeleteView):
+    model: AdsCompany = AdsCompany
+
+    def get_success_url(self) -> HttpResponseRedirect:
+        """При успешном удалении компании, перенаправляет на страницу со списком компаний."""
+        return reverse_lazy("ads:ads_list")
