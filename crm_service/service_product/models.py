@@ -9,7 +9,7 @@ from django.db.models import (
 )
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from mixins import TimestampMixin
+from utils.mixins import TimestampMixin
 
 
 class Product(TimestampMixin, models.Model):
