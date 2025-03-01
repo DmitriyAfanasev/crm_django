@@ -17,14 +17,13 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
 )
-from pydantic import ValidationError
 
 from .forms import ProductCreateForm
 from .models import Product
-from .dto_product import ProductDTO, ProductCreateDTO
+from .dto_product import ProductCreateDTO
 from .services import ProductService
 
-
+# TODO так же не забыть добавить все логически необходимые пермишены для всех вьюх.
 class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """
     Представление для списка всех услуг.
@@ -113,11 +112,21 @@ class ProductUpdateView(
 
 
 class ProductDeleteView(DeleteView, PermissionRequiredMixin):
+    """
+    Представление для подтверждения удаления услуги.
+
+    """
     permission_required: tuple[Permission,] = ("service_product.delete_product",)
     model: Product = Product
     context_object_name: str = "product"
 
     def get_success_url(self) -> HttpResponseRedirect:
+        """
+        При успешном удалении перенаправляет на страницу со списком услуг.
+        Так же передаётся сообщение, что действие выполнено.
+        Оно будет отображено на странице 'service_product/products-list.html',
+        и будет удалено через пару секунд. Время настраивается в файле 'message_removed.js'
+        """
         messages.success(
             self.request, f"Удаление услуги: {self.object.name!r}, прошло успешно!"
         )
