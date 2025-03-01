@@ -17,9 +17,12 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
 )
+from pydantic import ValidationError
 
 from .forms import ProductCreateForm
 from .models import Product
+from .dto_product import ProductDTO, ProductCreateDTO
+from .services import ProductService
 
 
 class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -53,10 +56,22 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form: ProductCreateForm) -> HttpResponse:
         """
-        Устанавливаем пользователя, создавшего услугу и дальше отправляем ответ с формы.
+        Устанавливаем пользователя, создавшего услугу и делаем проверки различного уровня и создаём запись в бд.
         """
-        form.instance.created_by = User.objects.get(id=self.request.user.pk)
-        return super().form_valid(form)
+        if form.is_valid():
+            form.instance.created_by = User.objects.get(id=self.request.user.pk)
+
+            dto = ProductCreateDTO(
+                **form.cleaned_data,
+                created_by=form.instance.created_by.pk,
+            )
+            try:
+                ProductService.checking_before_creation(dto)
+            except ValueError as error:
+                form.add_error(None, str(error))
+                return self.form_invalid(form)
+
+            return super().form_valid(form)
 
 
 class ProductDetailView(LoginRequiredMixin, DetailView):
@@ -90,7 +105,6 @@ class ProductUpdateView(
             - если пользователь имеет права на изменения услуг
             иначе доступ будет закрыт.
         """
-        self.object = self.get_object()
         if self.request.user.is_superuser or self.request.user.has_perm(
             "service_product.change_product"
         ):
