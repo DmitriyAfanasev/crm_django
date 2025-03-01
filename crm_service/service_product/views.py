@@ -23,6 +23,7 @@ from .models import Product
 from .dto_product import ProductCreateDTO
 from .services import ProductService
 
+
 # TODO так же не забыть добавить все логически необходимые пермишены для всех вьюх.
 class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """
@@ -116,6 +117,7 @@ class ProductDeleteView(DeleteView, PermissionRequiredMixin):
     Представление для подтверждения удаления услуги.
 
     """
+
     permission_required: tuple[Permission,] = ("service_product.delete_product",)
     model: Product = Product
     context_object_name: str = "product"
