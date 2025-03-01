@@ -139,3 +139,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_REDIRECT_URL = reverse_lazy("home")
 LOGIN_URL = reverse_lazy("accounts:login")
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    }
+}
+
+BAD_WORDS_FILE = BASE_DIR / "bad_words.txt"
