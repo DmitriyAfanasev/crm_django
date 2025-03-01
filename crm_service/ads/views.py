@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.http import HttpResponseRedirect
+from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView,
@@ -10,8 +11,10 @@ from django.views.generic import (
     TemplateView,
 )
 
+from .dto_ads_company import AdsCompanyCreateDTO
 from .models import AdsCompany
 from .forms import AdsCompanyCreateForm
+from .services import AdsCompanyService
 
 
 # TODO добавить пермишены
@@ -22,15 +25,30 @@ class AdsCompanyListView(ListView):
     context_object_name: str = "ads"
 
 
-class AdsCompanyCreateView(CreateView):
+class AdsCompanyCreateView(PermissionRequiredMixin, CreateView):
     """Представление для маркетологов и всех у кого есть право на создание рекламных компаний."""
 
-    model: AdsCompany = AdsCompany
-    form_class: AdsCompanyCreateForm = AdsCompanyCreateForm
+    model = AdsCompany
+    form_class = AdsCompanyCreateForm
+    permission_required = "ads.add_adscompany"
 
     def get_success_url(self) -> HttpResponseRedirect:
         """При успешном создании компании, перенаправляет на страницу с детальной информации о компании."""
         return reverse_lazy("ads:ads_detail", kwargs={"pk": self.object.pk})
+
+    def form_valid(self, form: AdsCompanyCreateForm) -> HttpResponse:
+        form.instance.created_by = User.objects.get(id=self.request.user.pk)
+
+        ads_company_dto = AdsCompanyCreateDTO(
+            **form.cleaned_data,
+            created_by=form.instance.created_by.pk,
+        )
+        try:
+            AdsCompanyService.checking_before_creation(ads_company_dto)
+        except ValueError as error:
+            form.add_error(None, str(error))
+            return self.form_invalid(form)
+        return super().form_valid(form)
 
 
 class AdsCompanyDetailView(DetailView):
@@ -56,5 +74,6 @@ class AdsCompanyDeleteView(DeleteView):
         return reverse_lazy("ads:ads_list")
 
 
+# TODO работает шаблон, но не логика которую он должен выводить
 class AdsCompanyStatisticsView(TemplateView):
     template_name = "ads/adscompany_statistic.html"
