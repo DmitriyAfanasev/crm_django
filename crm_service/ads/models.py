@@ -12,6 +12,9 @@ from service_product.models import Product
 from utils.mixins import TimestampMixin
 from utils.enums.countries import Country
 
+from datetime import timedelta
+from django.utils import timezone
+
 
 class AdsCompany(TimestampMixin, models.Model):
     """
@@ -88,3 +91,28 @@ class AdsCompany(TimestampMixin, models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def calculate_roi(self, revenue: float) -> float:
+        """
+        Рассчитывает ROI (Return on Investment) для рекламной компании.
+        :param revenue: Доход, полученный от рекламной компании.
+        :return: ROI в процентах.
+        """
+        if self.budget == 0:
+            return 0.0
+        return ((revenue - self.budget) / self.budget) * 100
+
+    def get_full_website_url(self) -> str:
+        """
+        Возвращает полный URL вебсайта.
+        """
+        if self.website and not self.website.startswith(("http://", "https://")):
+            return f"https://{self.website}"
+        return self.website
+
+    def is_active(self) -> bool:
+        """
+        Проверяет, активна ли рекламная компания.
+        Компания считается активной, если она создана не более 30 дней назад.
+        """
+        return self.created_at >= timezone.now() - timedelta(days=30)
