@@ -31,7 +31,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "name",
-        "description",
+        "description_short",
         "cost",
         "discount",
         "final_cost",
