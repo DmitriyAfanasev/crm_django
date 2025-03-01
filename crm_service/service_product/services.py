@@ -12,6 +12,7 @@ from .models import Product
 
 class BaseProduct(BaseModel): ...
 
+
 # TODO можно будет добавить рейтинг для заказчиков, и если у них хороший рейтинг, делать скидку или брать их заказы из очереди первыми.
 class ProductService(BaseProduct):
     name: str = Field(min_length=3, max_length=100)
