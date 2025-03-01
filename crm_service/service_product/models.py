@@ -30,6 +30,7 @@ class Product(TimestampMixin, models.Model):
         blank=False,
         null=False,
         db_index=True,
+        unique=True,
         verbose_name=_("Service name"),
     )
     description: TextField = models.TextField(
@@ -96,3 +97,10 @@ class Product(TimestampMixin, models.Model):
             float: Итоговая стоимость услуги.
         """
         return self.cost * (1 - self.discount / 100)
+
+    @property
+    def description_short(self) -> str:
+        """Возвращает краткое описание товара."""
+        if len(self.description) < 80:
+            return self.description
+        return self.description[:80] + "..."
