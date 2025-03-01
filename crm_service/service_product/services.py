@@ -12,7 +12,7 @@ from .models import Product
 
 class BaseProduct(BaseModel): ...
 
-
+# TODO можно будет добавить рейтинг для заказчиков, и если у них хороший рейтинг, делать скидку или брать их заказы из очереди первыми.
 class ProductService(BaseProduct):
     name: str = Field(min_length=3, max_length=100)
     description: str
@@ -34,7 +34,8 @@ class ProductService(BaseProduct):
     def _check_for_bad_words(text: str, bad_words: set[str]) -> bool:
         """Проверяет, содержит ли текст запрещенные слова."""
         text_lower: str = text.lower()
-        return any(bad_word in text_lower for bad_word in bad_words)
+        new_text = set(text_lower.split())  # Преобразуем список слов в множество
+        return not new_text.isdisjoint(bad_words)  # Проверяем на пересечение
 
     @staticmethod
     def checking_before_creation(data_from_request: ProductCreateDTO) -> None:
