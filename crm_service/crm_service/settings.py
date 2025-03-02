@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     "service_product.apps.ServiceProductConfig",
     "ads.apps.AdsConfig",
     "customers.apps.CustomersConfig",
+    "leads.apps.LeadsConfig",
+    # сторонние библиотеки
+    "phonenumber_field",
 ]
 
 MIDDLEWARE = [
