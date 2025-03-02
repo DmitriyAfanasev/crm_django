@@ -7,8 +7,7 @@ from utils.mixins import TimestampMixin
 from ads.models import AdsCompany
 
 
-# TODO возможно сделать поле email primary_key, чтобы не делать лишний pk, если не будем его использовать
-# но email может изменяться, что приведет к необходимости обновления всех связанных записей.
+# TODO Оператор может создавать, просматривать и редактировать потенциальных клиентов.
 class Lead(TimestampMixin, models.Model):
     """
     Модель перспективного клиента, но ещё не активного.
@@ -25,7 +24,7 @@ class Lead(TimestampMixin, models.Model):
         max_length=100, blank=False, null=False, verbose_name=_("First Name")
     )
     middle_name = models.CharField(
-        max_length=100, blank=True, null=True, verbose_name=_("Middle Name")
+        max_length=100, blank=True, null=True, verbose_name=_("Middle Name"), default=""
     )
     last_name = models.CharField(
         max_length=100, blank=False, null=False, verbose_name=_("Last Name")
@@ -64,4 +63,4 @@ class Lead(TimestampMixin, models.Model):
         return f"{first_name} {middle_name} {self.last_name}"
 
     def __str__(self) -> str:
-        return self.full_name
+        return self.__class__.__name__

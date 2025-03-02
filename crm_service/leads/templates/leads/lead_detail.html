@@ -1,0 +1,58 @@
+{% extends "crm_service/_base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="fw-bold text-center mb-4">Детальная информация о лиде</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-lg" style="background: #f8f9fa;">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title fw-bold mb-0">
+                        {{ lead.last_name }} {{ lead.first_name }}
+                        {% if lead.middle_name %}
+                            {{ lead.middle_name }}
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p class="card-text">
+                            <i class="fas fa-phone-alt me-2"></i>
+                            <strong>Телефон:</strong> {{ lead.phone_number }}
+                        </p>
+                        <p class="card-text">
+                            <i class="fas fa-envelope me-2"></i>
+                            <strong>Email:</strong> {{ lead.email }}
+                        </p>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <p class="card-text">
+                            <i class="fas fa-ad me-2"></i>
+                            <strong>Рекламная кампания:</strong>
+                             {% if perms.ads.view_adscompany %}
+                            <a href="{% url 'ads:ads_detail' lead.campaign.pk %}" class="text-decoration-none">
+                                {{ lead.campaign.name }}
+                            </a>
+                            {% else %}
+                                {{ lead.campaign.name }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="/leads/{{ lead.pk }}/edit" class="btn btn-primary me-md-2">
+                            <i class="fas fa-edit me-2"></i>Редактировать
+                        </a>
+                        <a href="/leads/{{ lead.pk }}/delete" class="btn btn-danger me-md-2">
+                            <i class="fas fa-trash-alt me-2"></i>Удалить
+                        </a>
+                        <a href="/leads" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Назад к списку
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
