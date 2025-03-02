@@ -56,11 +56,13 @@ class Lead(TimestampMixin, models.Model):
         Возвращает имя и отчество в виде инициалов с точкой не сокращая фамилию.
         Examples:
             Иван Сергеевич Иванов =>\n
-            И. С. Иванов
+            И. С. Иванов\n
+            Иван Иванов =>\n
+            И. Иванов
         """
         first_name = f"{self.first_name[0].capitalize()}."
         middle_name = f"{self.middle_name[0].capitalize()}." if self.middle_name else ""
         return f"{first_name} {middle_name} {self.last_name}"
 
     def __str__(self) -> str:
-        return self.__class__.__name__
+        return f"{self.__class__.__name__} - {self.email}"
