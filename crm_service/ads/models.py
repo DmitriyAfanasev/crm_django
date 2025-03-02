@@ -6,14 +6,20 @@ from django.db.models import (
     DecimalField,
     ForeignKey,
     EmailField,
+    FloatField,
 )
 
 from service_product.models import Product
 from utils.mixins import TimestampMixin
-from utils.enums.countries import Country
+from utils.enums import Country, RatingChoice
 
 from datetime import timedelta
 from django.utils import timezone
+
+
+# TODO добавить селери таску на подтверждение регистрации
+# TODO переделать их в классы с названием и описанием не больше.
+# TODO добавить список соц сетей.
 
 
 class AdsCompany(TimestampMixin, models.Model):
@@ -88,6 +94,7 @@ class AdsCompany(TimestampMixin, models.Model):
         verbose_name=_("Website"),
         help_text=_("Link to the website company"),
     )
+    # ratings: FloatField = models.FloatField(default=0, verbose_name=_("Rating"))
 
     def __str__(self) -> str:
         return self.name
@@ -116,3 +123,63 @@ class AdsCompany(TimestampMixin, models.Model):
         Компания считается активной, если она создана не более 30 дней назад.
         """
         return self.created_at >= timezone.now() - timedelta(days=30)
+
+
+#     def update_rating(self) -> None:
+#         """
+#         Обновляет рейтинг компании на основе всех оценок, исключая "Нет оценки".
+#         """
+#         ratings = self.ratings.exclude(rating=None)
+#         if ratings.exists():
+#             total_rating = sum(rating.rating for rating in ratings)
+#             self.rating = total_rating / ratings.count()
+#         else:
+#             self.rating = 0
+#         self.save()
+#
+#     def add_rating(self, user: "Active_client", rating: RatingChoice) -> None:
+#         """
+#         Добавляет оценку от пользователя и обновляет рейтинг компании.
+#         :param user: Пользователь, который оставляет оценку.
+#         :param rating: Оценка из перечисления RatingChoice.
+#         """
+#         rating_value = RatingChoice.get_rating_value(rating)
+#         CompanyRating.objects.update_or_create(
+#             company=self,
+#             user=user,
+#             defaults={"rating": rating_value},
+#         )
+#         self.update_rating()
+#
+#
+# class CompanyRating(models.Model):
+#     """
+#     Модель для хранения оценок, оставленных пользователями для компании.
+#     """
+#
+#     company: ForeignKey = models.ForeignKey(
+#         to=AdsCompany,
+#         on_delete=models.CASCADE,
+#         related_name="ratings",
+#         verbose_name=_("Company"),
+#     )
+#     client: ForeignKey = models.ForeignKey(
+#         to=ActiveClient,
+#         on_delete=models.CASCADE,
+#         related_name="company_ratings",
+#         verbose_name=_("Client"),
+#     )
+#     rating: models.IntegerField = models.IntegerField(
+#         choices=RatingChoice.choices(),
+#         blank=True,
+#         null=True,
+#         verbose_name=_("Rating"),
+#         help_text=_("Rating from 0 to 5"),
+#     )
+#
+#     class Meta:
+#         unique_together: tuple[tuple[str, str],] = (
+#             ("company", "client"),
+#         )
+#         verbose_name: str = _("Company Rating")
+#         verbose_name_plural: str = _("Company Ratings")
