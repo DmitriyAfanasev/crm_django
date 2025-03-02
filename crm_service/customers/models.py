@@ -6,6 +6,7 @@ from utils.mixins import TimestampMixin
 from leads.models import Lead
 
 
+# Менеджер может создавать, просматривать и редактировать контракты, смотреть потенциальных клиентов и переводить их в активных.
 class Customer(TimestampMixin, models.Model):
     """Активный клиент пользующийся услугами компаний."""
 
