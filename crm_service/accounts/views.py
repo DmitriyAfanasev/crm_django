@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 
 
+# TODO добавить возможность посмотреть пароль при вводе
 class MyLoginView(LoginView):
     template_name: str = "accounts/login.html"
     success_url: str = reverse_lazy("home")
