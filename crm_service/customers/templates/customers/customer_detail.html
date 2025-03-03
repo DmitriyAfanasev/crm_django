@@ -1,0 +1,29 @@
+{% extends "crm_service/_base.html" %}
+
+{% block content %}
+<h2 class="fw-bold">Детальная информация об активном клиенте</h2>
+<div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
+    <div class="col"></div>
+    <div class="col">
+        <div class="card border-dark shadow" style="background: #eee">
+            <div class="card-body">
+                <h5 class="card-title fw-bold">{{ customer.lead.last_name }} {{ customer.lead.first_name }}</h5>
+                <p class="card-text">{{ customer.lead.phone }}</p>
+                <div class="d-flex justify-content-end fw-bold">{{ object.lead.email }}</div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="/customers/{{ customer.pk }}/edit" class="btn btn-primary me-md-2">
+                            <i class="fas fa-edit me-2"></i>Редактировать
+                        </a>
+                        <a href="/customers/{{ customer.pk }}/delete" class="btn btn-danger me-md-2">
+                            <i class="fas fa-trash-alt me-2"></i>Удалить
+                        </a>
+                        <a href="/customers" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Назад к списку
+                        </a>
+                    </div>
+            </div>
+        </div>
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}
