@@ -29,5 +29,6 @@ urlpatterns = [
     path("ads/", include("ads.urls")),
     path("leads/", include("leads.urls")),
     path("customers/", include("customers.urls")),
+    path("contacts/", include("contacts.urls")),
     # path("reg/", include("django.contrib.auth.urls")),
 ]
