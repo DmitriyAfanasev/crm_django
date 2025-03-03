@@ -13,6 +13,7 @@ from .models import Customer
 from .forms import CustomerCreateForm
 
 
+# TODO добавить пермишены
 class CustomerListView(ListView):
     model = Customer
     context_object_name = "customers"
@@ -29,7 +30,7 @@ class CustomerCreateView(CreateView):
         return super().form_valid(form)
 
     def get_success_url(self) -> HttpResponseRedirect:
-        return reverse_lazy("customers:customer_detail", kwargs={"pk": self.object.pk})
+        return reverse_lazy("customers:customers_detail", kwargs={"pk": self.object.pk})
 
 
 class CustomerDetailView(DetailView):
@@ -41,6 +42,7 @@ class CustomerUpdateView(UpdateView):
     model = Customer
     context_object_name = "customer"
     form_class = CustomerCreateForm
+    template_name_suffix = "_edit"
 
     def form_valid(self, form: CustomerCreateForm) -> HttpResponse:
         response = super().form_valid(form)
@@ -49,4 +51,9 @@ class CustomerUpdateView(UpdateView):
             return response
 
     def get_success_url(self) -> HttpResponseRedirect:
-        return reverse_lazy("customers:customer_detail", kwargs={"pk": self.object.pk})
+        return reverse_lazy("customers:customers_detail", kwargs={"pk": self.object.pk})
+
+
+class CustomerDeleteView(DeleteView):
+    model = Customer
+    success_url = reverse_lazy("customers:customers_list")

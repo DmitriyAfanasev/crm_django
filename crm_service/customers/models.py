@@ -21,5 +21,13 @@ class Customer(TimestampMixin, models.Model):
         verbose_name=_("Is Active"),
     )
 
+    class Meta:
+        verbose_name = _("Customer")
+        verbose_name_plural = _("Customers")
+        ordering = (
+            "pk",
+            "-created_at",
+        )
+
     def __str__(self) -> str:
         return f"Customer: {self.lead.full_name}"

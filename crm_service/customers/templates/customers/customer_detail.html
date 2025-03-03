@@ -7,14 +7,14 @@
     <div class="col">
         <div class="card border-dark shadow" style="background: #eee">
             <div class="card-body">
-                <h5 class="card-title fw-bold">{{ object.lead.last_name }} {{ object.lead.first_name }}</h5>
-                <p class="card-text">{{ object.lead.phone }}</p>
+                <h5 class="card-title fw-bold">{{ customer.lead.last_name }} {{ customer.lead.first_name }}</h5>
+                <p class="card-text">{{ customer.lead.phone }}</p>
                 <div class="d-flex justify-content-end fw-bold">{{ object.lead.email }}</div>
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                        <a href="/customers/{{ lead.pk }}/edit" class="btn btn-primary me-md-2">
+                        <a href="/customers/{{ customer.pk }}/edit" class="btn btn-primary me-md-2">
                             <i class="fas fa-edit me-2"></i>Редактировать
                         </a>
-                        <a href="/customers/{{ lead.pk }}/delete" class="btn btn-danger me-md-2">
+                        <a href="/customers/{{ customer.pk }}/delete" class="btn btn-danger me-md-2">
                             <i class="fas fa-trash-alt me-2"></i>Удалить
                         </a>
                         <a href="/customers" class="btn btn-outline-secondary">
