@@ -9,8 +9,8 @@ def create_directory_path_for_documents_customer(
     instance: "Customer", filename: str
 ) -> str:
     """Создаётся путь к каталогу, в котором будут храниться документы."""
-    return "customers/{user_pk}/documents/{filename}".format(
-        user_pk=instance.lead.pk, filename=filename
+    return "documents/{agreement}-{date}/{filename}".format(
+        agreement=instance.name, date=instance.start_date, filename=filename
     )
 
 
@@ -26,7 +26,6 @@ class Contract(models.Model):
         to=Product,
         on_delete=models.PROTECT,
         verbose_name=_("Service"),
-        related_name="contract",
     )
     file_document = models.FileField(
         blank=False,
@@ -43,6 +42,9 @@ class Contract(models.Model):
         blank=False,
         null=False,
         verbose_name=_("End date"),
+    )
+    cost = models.DecimalField(
+        blank=False, null=False, max_digits=15, decimal_places=2, verbose_name=_("Cost")
     )
 
     def __str__(self) -> str:
