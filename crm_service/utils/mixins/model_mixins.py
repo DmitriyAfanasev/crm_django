@@ -47,3 +47,35 @@ class TimestampMixin(models.Model):
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__} created at {self.created_at}"
+
+
+class ActorMixin(models.Model):
+    """
+    Миксин для добавления полей отслеживания пользователей, создавших и обновивших модель.
+
+    Атрибуты:
+        created_by (ForeignKey): Пользователь, создавший объект.
+        updated_by (ForeignKey): Пользователь, обновивший объект.
+    """
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_%(class)s",
+        verbose_name=_("created by"),
+        help_text=_("The user who created the object."),
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="updated_%(class)s",
+        verbose_name=_("updated by"),
+        help_text=_("The user who last updated the object."),
+    )
+
+    class Meta:
+        abstract = True

@@ -1,3 +1,3 @@
-from .timestamp import TimestampMixin
+from .model_mixins import TimestampMixin
 
 __all__ = ("TimestampMixin",)
