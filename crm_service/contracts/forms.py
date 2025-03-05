@@ -17,4 +17,5 @@ class ContractForm(forms.ModelForm):
             "name": forms.TextInput(attrs={"class": "form-control"}),
             "product": forms.Select(attrs={"class": "form-control"}),
             "file_document": forms.FileInput(attrs={"class": "form-control"}),
+            "cost": forms.NumberInput(attrs={"class": "form-control"}),
         }
