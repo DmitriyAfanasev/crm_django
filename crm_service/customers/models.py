@@ -16,9 +16,8 @@ class Customer(TimestampMixin, ActorMixin, models.Model):
         related_name="customer",
         verbose_name=_("Lead"),
     )
-    is_active: BooleanField = models.BooleanField(
-        default=True,
-        verbose_name=_("Is Active"),
+    archived: bool = models.BooleanField(
+        default=False, verbose_name=_("Archived"), db_default=None
     )
 
     class Meta:
