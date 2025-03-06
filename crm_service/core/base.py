@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Protocol, Optional
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -64,3 +64,9 @@ class BaseService(ServiceProtocol):
         """
         if model.objects.filter(name=name).exists():
             raise ValueError(message)
+
+
+@dataclass
+class BaseDTO:
+    def to_dict(self) -> dict[str, Optional[str]]:
+        return {key: value for key, value in self.__dict__.items()}
