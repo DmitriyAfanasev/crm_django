@@ -44,6 +44,10 @@ class Lead(TimestampMixin, models.Model):
         related_name="customers",
         verbose_name=_("Campaign"),
     )
+    is_active = models.BooleanField(
+        default=False,
+        verbose_name=_("Is Active"),
+    )
 
     @property
     def full_name(self) -> str:
