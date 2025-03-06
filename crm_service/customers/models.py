@@ -2,12 +2,12 @@ from django.db import models
 from django.db.models import BooleanField
 from django.utils.translation import gettext_lazy as _
 
-from utils.mixins import TimestampMixin
+from utils.mixins import TimestampMixin, ActorMixin
 from leads.models import Lead
 
 
 # Менеджер может создавать, просматривать и редактировать контракты, смотреть потенциальных клиентов и переводить их в активных.
-class Customer(TimestampMixin, models.Model):
+class Customer(TimestampMixin, ActorMixin, models.Model):
     """Активный клиент пользующийся услугами компаний."""
 
     lead: Lead = models.OneToOneField(
