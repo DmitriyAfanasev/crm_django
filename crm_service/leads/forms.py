@@ -18,6 +18,19 @@ class LeadForm(forms.ModelForm):
             "phone_number",
             "campaign",
         )
+        widgets = {
+            "first_name": forms.TextInput(attrs={"class": "form-control"}),
+            "middle_name": forms.TextInput(attrs={"class": "form-control"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "phone_number": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "+7 (___) ___-__-__",
+                }
+            ),
+            "campaign": forms.Select(attrs={"class": "form-control"}),
+        }
 
     @staticmethod
     def validate_name(name: str, field_name: str) -> str:
