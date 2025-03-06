@@ -12,13 +12,18 @@ class ProductCreateForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ("name", "description", "cost", "discount", "status", "archived")
-        labels = {
-            "name": _("Name"),
-            "description": _("Description"),
-            "cost": _("Cost"),
-            "discount": _("Discount"),
-            "status": _("Status"),
-            "archived": _("Archived"),
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control"}),
+            "cost": forms.NumberInput(attrs={"class": "form-control"}),
+            "discount": forms.NumberInput(attrs={"class": "form-control"}),
+            "status": forms.Select(attrs={"class": "form-control"}),
+            "archived": forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input",
+                    "style": "box-shadow: 0 0 5px rgba(0,0,0,0.4);",
+                }
+            ),
         }
 
     def clean_name(self) -> str:
