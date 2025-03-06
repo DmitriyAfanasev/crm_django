@@ -1,9 +1,13 @@
+from django.utils.translation import gettext_lazy as _
+
 from django import forms
 
 from .models import Lead
 
 
 class LeadForm(forms.ModelForm):
+    """Форма для создания лида, или обновления информации о нём"""
+
     class Meta:
         model = Lead
         fields = (
@@ -12,8 +16,43 @@ class LeadForm(forms.ModelForm):
             "last_name",
             "email",
             "phone_number",
-            "email",
             "campaign",
         )
+        widgets = {
+            "first_name": forms.TextInput(attrs={"class": "form-control"}),
+            "middle_name": forms.TextInput(attrs={"class": "form-control"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "phone_number": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "+7 (___) ___-__-__",
+                }
+            ),
+            "campaign": forms.Select(attrs={"class": "form-control"}),
+        }
 
-        # TODO добавить валидацию формы
+    @staticmethod
+    def validate_name(name: str, field_name: str) -> str:
+        """Вспомогательный метод для проверки имени или фамилии."""
+        if len(name.split(" ")) > 1:
+            raise forms.ValidationError(
+                _(f"{field_name} must consist of a single word or be separated by '-'")
+            )
+        if len(name) < 2:
+            raise forms.ValidationError(
+                _(f"{field_name} must contain at least 2 characters")
+            )
+        return name
+
+    def clean_first_name(self) -> str:
+        first_name: str = self.cleaned_data.get("first_name")
+        return self.validate_name(first_name, "First name")
+
+    def clean_middle_name(self) -> str:
+        middle_name: str = self.cleaned_data.get("middle_name")
+        return self.validate_name(middle_name, "Middle name")
+
+    def clean_last_name(self) -> str:
+        last_name: str = self.cleaned_data.get("last_name")
+        return self.validate_name(last_name, "Last name")

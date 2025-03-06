@@ -1,7 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+
 from django.views.generic import (
     ListView,
     DetailView,
@@ -10,6 +13,7 @@ from django.views.generic import (
     DeleteView,
 )
 
+from customers.models import Customer
 from .models import Lead
 from .forms import LeadForm
 
@@ -70,3 +74,43 @@ class LeadDeleteView(DeleteView):
             f"Удаление {self.model.__name__}: {self.object.full_name!r}, прошло успешно!",
         )
         return reverse_lazy("leads:leads_list")
+
+
+@transaction.atomic
+def convert_lead_to_customer(request, *args, **kwargs):
+    lead_id = kwargs.get("lead_id")
+    lead = get_object_or_404(Lead, pk=lead_id)
+
+    customer, created = Customer.objects.get_or_create(
+        lead=lead,
+        defaults={
+            "created_by": request.user,
+            "updated_by": request.user,
+            "archived": False,
+        },
+    )
+
+    if not created:
+        customer.archived = False
+        customer.save()
+
+    lead.is_active = True
+    lead.save()
+
+    return redirect("leads:leads_list")
+
+
+@transaction.atomic
+def convert_lead_to_inactive(request, *args, **kwargs):
+    lead_id = kwargs.get("lead_id")
+    lead = get_object_or_404(Lead, pk=lead_id)
+
+    customer = get_object_or_404(Customer, lead=lead)
+    customer.updated_by = request.user
+    customer.archived = True
+    customer.save()
+
+    lead.is_active = False
+    lead.save()
+
+    return redirect("leads:leads_list")

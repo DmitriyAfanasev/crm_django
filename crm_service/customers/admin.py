@@ -7,6 +7,7 @@ class CustomerAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "lead",
+        "archived",
         "created_at",
         "updated_at",
         "created_by",

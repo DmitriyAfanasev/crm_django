@@ -12,4 +12,5 @@ class LeadAdmin(admin.ModelAdmin):
         "phone_number",
         "email",
         "campaign",
+        "is_active",
     )

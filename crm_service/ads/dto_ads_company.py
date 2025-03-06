@@ -1,33 +1,67 @@
-from pydantic import EmailStr
-
-from service_product.models import Product
+from typing import Optional, TYPE_CHECKING
 from dataclasses import dataclass
+from django.contrib.auth.models import User
+from core.base import BaseDTO
+
+if TYPE_CHECKING:
+    from service_product.models import Product
 
 
 @dataclass
-class AdsCompanyDTO:
-    """DTO уже созданной модели, для передачи данных между другими слоями."""
+class AdsCompanyDTO(BaseDTO):
+    """
+    Data Transfer Object (DTO) для представления рекламной компании.
+
+    Атрибуты:
+        pk (Optional[int]): Уникальный идентификатор рекламной компании. Может быть None для новых компаний.
+        name (str): Название рекламной компании.
+        product (Product): Продукт, связанный с рекламной компанией.
+        channel (str): Канал, через который осуществляется реклама.
+        budget (float): Бюджет рекламной компании.
+        country (str): Страна, в которой проводится реклама.
+        email (str): Электронная почта для связи.
+        website (str): Веб-сайт рекламной компании.
+        created_by (Optional[User]): Пользователь, создавший рекламную компанию. Может быть None.
+        updated_by (Optional[User]): Пользователь, обновивший рекламную компанию. Может быть None.
+    """
+
+    name: str
+    product: "Product"
+    channel: str
+    budget: float
+    country: str
+    email: str
+    website: str
+    created_by: Optional[User]
+    updated_by: Optional[User] = None
+    pk: Optional[int] = None
+
+
+@dataclass
+class AdsCompanyCreateDTO(AdsCompanyDTO):
+    """
+    Data Transfer Object (DTO) для создания рекламной компании.
+
+    Наследует все атрибуты AdsCompanyDTO, но требует указания created_by.
+
+    Атрибуты:
+        created_by (User): Пользователь, создавший рекламную компанию.
+    """
+
+    created_by: User
+
+
+@dataclass
+class AdsCompanyUpdateDTO(AdsCompanyDTO):
+    """
+    Data Transfer Object (DTO) для обновления рекламной компании.
+
+    Наследует все атрибуты AdsCompanyDTO, но требует указания pk и updated_by.
+
+    Атрибуты:
+        pk (int): Уникальный идентификатор рекламной компании.
+        updated_by (User): Пользователь, обновивший рекламную компанию.
+    """
 
     pk: int
-    name: str
-    product: Product
-    channel: str
-    budget: float
-    country: str
-    email: EmailStr
-    created_by: int
-    website: str
-
-
-@dataclass
-class AdsCompanyCreateDTO:
-    """DTO для ещё не созданной записи в бд, передаётся в сервис для пред проверки."""
-
-    name: str
-    product: Product
-    channel: str
-    budget: float
-    country: str
-    email: EmailStr
-    created_by: int
-    website: str
+    updated_by: User

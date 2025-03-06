@@ -1,60 +1,67 @@
 {% extends "crm_service/_base.html" %}
 
 {% block content %}
-    <h2 class="fw-bold">Детальная информация о рекламной компании</h2>
-    <div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
-        <div class="col"></div>
-        <div class="col">
-            <div class="card border-dark shadow" style="background: #eee">
+<div class="container my-5">
+    <h2 class="fw-bold text-center mb-4">Детальная информация о рекламной компании</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-lg" style="background: #f8f9fa;">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title fw-bold text-center mb-0"><u>{{ object.name }}</u></h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title fw-bold text-center mb-4"><u>{{ object.name }}</u></h5>
                     <div class="field-list">
-                        <div class="field-item d-flex justify-content-between">
-                            <span class="field-label fw-bold">Услуга:</span>
+                        <div class="field-item d-flex align-items-center mb-2">
+                            <i class="fas fa-cogs me-2"></i>
+                            <span class="field-label fw-bold me-2">Услуга:</span>
                             <span class="field-value">{{ object.product.name }}</span>
                         </div>
-                        <div class="field-item d-flex justify-content-between">
-                            <span class="field-label fw-bold">Канал продвижения:</span>
+                        <div class="field-item d-flex align-items-center mb-2">
+                            <i class="fas fa-bullhorn me-2"></i>
+                            <span class="field-label fw-bold me-2">Канал продвижения:</span>
                             <span class="field-value">{{ object.get_channel_display }}</span>
                         </div>
-                        <div class="field-item d-flex justify-content-between">
-                            <span class="field-label fw-bold">Бюджет:</span>
+                        <div class="field-item d-flex align-items-center mb-2">
+                            <i class="fas fa-money-bill-wave me-2"></i>
+                            <span class="field-label fw-bold me-2">Бюджет:</span>
                             <span class="field-value">{{ object.budget }} руб</span>
                         </div>
-                        <div class="field-item d-flex justify-content-between">
-                            <span class="field-label fw-bold">Страна:</span>
+                        <div class="field-item d-flex align-items-center mb-2">
+                            <i class="fas fa-globe me-2"></i>
+                            <span class="field-label fw-bold me-2">Страна:</span>
                             <span class="field-value">{{ object.get_country_display }}</span>
                         </div>
-                        <div class="field-item d-flex justify-content-between">
-                            <span class="field-label fw-bold">Email:</span>
+                        <div class="field-item d-flex align-items-center mb-2">
+                            <i class="fas fa-envelope me-2"></i>
+                            <span class="field-label fw-bold me-2">Email:</span>
                             <span class="field-value">{{ object.email }}</span>
                         </div>
-                        <div class="field-item d-flex justify-content-between">
-                            <span class="field-label fw-bold">Вебсайт:</span>
+                        <div class="field-item d-flex align-items-center mb-2">
+                            <i class="fas fa-link me-2"></i>
+                            <span class="field-label fw-bold me-2">Вебсайт:</span>
                             <span class="field-value">
-                            {% if object.website %}
-                                <a href="{{ object.website }}" target="_blank">{{ object.website }}</a>
-                            {% else %}
-                                Не указан
-                            {% endif %}
+                                {% if object.website %}
+                                    <a href="{{ object.website }}" target="_blank">{{ object.website }}</a>
+                                {% else %}
+                                    Не указан
+                                {% endif %}
                             </span>
                         </div>
                     </div>
-
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                    <a href="/ads/{{ company.pk }}/edit" class="btn btn-primary me-md-2">
-                        <i class="fas fa-edit me-2"></i>Редактировать
-                    </a>
-                    <a href="/ads/{{ company.pk }}/delete" class="btn btn-danger me-md-2">
-                        <i class="fas fa-trash-alt me-2"></i>Удалить
-                    </a>
-                    <a href="/ads" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Назад к списку
-                    </a>
-                </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="/ads/{{ object.pk }}/edit" class="btn btn-primary me-md-2">
+                            <i class="fas fa-edit me-2"></i>Редактировать
+                        </a>
+                        <a href="/ads/{{ object.pk }}/delete" class="btn btn-danger me-md-2">
+                            <i class="fas fa-trash-alt me-2"></i>Удалить
+                        </a>
+                        <a href="/ads" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Назад к списку
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col"></div>
     </div>
+</div>
 {% endblock %}

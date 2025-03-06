@@ -31,7 +31,7 @@ class Contract(models.Model):
         blank=False,
         null=False,
         upload_to=create_directory_path_for_documents_customer,
-        verbose_name=_("Document file"),
+        verbose_name=_("File with documents"),
     )
     start_date = models.DateField(
         blank=False,
