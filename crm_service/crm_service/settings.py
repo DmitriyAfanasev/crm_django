@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "ads.apps.AdsConfig",
     "customers.apps.CustomersConfig",
     "leads.apps.LeadsConfig",
+    "contracts.apps.ContractsConfig",
     # сторонние библиотеки
     "phonenumber_field",
 ]
