@@ -16,6 +16,15 @@ class AdsCompanyCreateForm(forms.ModelForm):
     class Meta:
         model = AdsCompany
         fields = ("name", "product", "channel", "budget", "country", "email", "website")
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "product": forms.Select(attrs={"class": "form-control"}),
+            "channel": forms.Select(attrs={"class": "form-control"}),
+            "budget": forms.TextInput(attrs={"class": "form-control"}),
+            "country": forms.Select(attrs={"class": "form-control"}),
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "website": forms.TextInput(attrs={"class": "form-control"}),
+        }
 
     def clean_name(self) -> str:
         name: str = self.cleaned_data["name"]
@@ -40,6 +49,6 @@ class AdsCompanyCreateForm(forms.ModelForm):
 
     def clean_website(self) -> str:
         website: str = self.cleaned_data["website"]
-        if not website.startswith("https://"):
+        if not website.startswith("https://") or not website.endswith("http://"):
             website = f"https://{website}"
         return website
