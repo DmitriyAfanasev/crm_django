@@ -87,3 +87,9 @@ class ContractForm(forms.ModelForm):
                 )
             )
         return file_document
+
+    def clean_cost(self) -> float:
+        cost = self.cleaned_data["cost"]
+        if cost <= 0:
+            raise forms.ValidationError(_("The cost is invalid."))
+        return cost
