@@ -25,7 +25,6 @@ class AdsCompanyDTO(BaseDTO):
         updated_by (Optional[User]): Пользователь, обновивший рекламную компанию. Может быть None.
     """
 
-    pk: Optional[int]
     name: str
     product: "Product"
     channel: str
@@ -34,7 +33,8 @@ class AdsCompanyDTO(BaseDTO):
     email: str
     website: str
     created_by: Optional[User]
-    updated_by: Optional[User]
+    updated_by: Optional[User] = None
+    pk: Optional[int] = None
 
 
 @dataclass
