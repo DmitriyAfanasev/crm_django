@@ -14,7 +14,7 @@ class ContractDTO(BaseDTO):
     """
     Data Transfer Object (DTO) для представления контракта.
 
-    Атрибуты:
+    Attributes:
         pk (Optional[int]): Уникальный идентификатор контракта. Может быть None для новых контрактов.
         name (str): Название контракта.
         product (Product): Продукт, связанный с контрактом.
@@ -44,7 +44,7 @@ class ContractCreateDTO(ContractDTO):
 
     Наследует все атрибуты ContractDTO, но требует указания created_by.
 
-    Атрибуты:
+    Attributes:
 
         created_by (User): Пользователь, создавший контракт.
     """
@@ -59,7 +59,7 @@ class ContractUpdateDTO(ContractDTO):
 
     Наследует все атрибуты ContractDTO, но требует указания pk и updated_by.
 
-    Атрибуты:
+    Attributes:
         pk (int): Уникальный идентификатор контракта.
         updated_by (User): Пользователь, обновивший контракт.
     """
