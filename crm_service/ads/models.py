@@ -10,7 +10,7 @@ from django.db.models import (
 )
 
 from service_product.models import Product
-from utils.mixins import TimestampMixin
+from utils.mixins import TimestampMixin, ActorMixin
 from utils.enums import Country
 from .models_as_description import PromotionChannel
 from datetime import timedelta
@@ -21,7 +21,7 @@ from datetime import timedelta
 # TODO добавить список соц сетей.
 
 
-class AdsCompany(TimestampMixin, models.Model):
+class AdsCompany(TimestampMixin, ActorMixin):
     """
     Модель для рекламной компании
 

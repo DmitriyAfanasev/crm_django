@@ -7,7 +7,7 @@ from leads.models import Lead
 
 
 # Менеджер может создавать, просматривать и редактировать контракты, смотреть потенциальных клиентов и переводить их в активных.
-class Customer(TimestampMixin, ActorMixin, models.Model):
+class Customer(TimestampMixin, ActorMixin):
     """Активный клиент пользующийся услугами компаний."""
 
     lead: Lead = models.OneToOneField(

@@ -3,12 +3,12 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from django.db import models
 
-from utils.mixins import TimestampMixin
+from utils.mixins import TimestampMixin, ActorMixin
 from ads.models import AdsCompany
 
 
 # TODO Оператор может создавать, просматривать и редактировать потенциальных клиентов.
-class Lead(TimestampMixin, models.Model):
+class Lead(TimestampMixin, ActorMixin):
     """
     Модель перспективного клиента, но ещё не активного.
     Attributes:

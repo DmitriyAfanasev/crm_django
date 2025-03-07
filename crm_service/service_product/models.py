@@ -9,10 +9,10 @@ from django.db.models import (
 )
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from utils.mixins import TimestampMixin
+from utils.mixins import TimestampMixin, ActorMixin
 
 
-class Product(TimestampMixin, models.Model):
+class Product(TimestampMixin, ActorMixin):
     """
     Модель услуги для клиентов.
 
