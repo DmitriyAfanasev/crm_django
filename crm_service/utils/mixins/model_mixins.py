@@ -1,4 +1,5 @@
-from django.db.models import ForeignKey, DateTimeField, Index
+from django.db.models import DateTimeField, Index
+
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.db import models
@@ -12,26 +13,10 @@ class TimestampMixin(models.Model):
     Атрибуты:
         created_at (DateTimeField): Дата и время создания объекта
         updated_at (DateTimeField): Дата и время последнего обновления объекта
-        created_by (ForeignKey): Пользователь, создавший объект
-        updated_by (ForeignKey): Пользователь, обновивший объект
     """
 
     created_at: DateTimeField = models.DateTimeField(auto_now_add=True)
     updated_at: DateTimeField = models.DateTimeField(auto_now=True)
-    created_by: ForeignKey | None = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="created_%(class)s",
-        verbose_name=_("created by"),
-    )
-    updated_by: ForeignKey | None = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="updated_%(class)s",
-        verbose_name=_("updated by"),
-    )
 
     class Meta:
         """
