@@ -1,4 +1,5 @@
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 from django.db import models
 from django.db.models import (
@@ -6,15 +7,13 @@ from django.db.models import (
     DecimalField,
     ForeignKey,
     EmailField,
-    FloatField,
 )
 
 from service_product.models import Product
 from utils.mixins import TimestampMixin
-from utils.enums import Country, RatingChoice
-
+from utils.enums import Country
+from .models_as_description import PromotionChannel
 from datetime import timedelta
-from django.utils import timezone
 
 
 # TODO добавить селери таску на подтверждение регистрации
@@ -52,19 +51,9 @@ class AdsCompany(TimestampMixin, models.Model):
     product: ForeignKey = models.ForeignKey(
         to=Product, on_delete=models.CASCADE, related_name="service"
     )
-    channel: CharField = models.CharField(
-        max_length=50,
-        choices=[
-            ("social_media", _("Social network")),
-            ("search_engines", _("Search engines")),
-            ("email", _("Email-newsletters")),
-            ("contextual", _("Contextual advertising")),
-            ("display", _("Display advertising")),
-            ("offline", _("Offline channels")),
-            ("partners", _("Partnership programs")),
-            ("messengers", _("Messengers")),
-            ("own_channels", _("Own channels")),
-        ],
+    channel: ForeignKey = models.ForeignKey(
+        to=PromotionChannel,
+        on_delete=models.PROTECT,
         verbose_name=_("Promotion channel"),
     )
     budget: DecimalField = models.DecimalField(
