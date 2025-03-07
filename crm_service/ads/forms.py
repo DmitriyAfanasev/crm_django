@@ -56,6 +56,8 @@ class AdsCompanyCreateForm(forms.ModelForm):
 
     def clean_website(self) -> str:
         website: str = self.cleaned_data["website"]
-        if not website.startswith("https://") or not website.endswith("http://"):
+        if website.startswith("http://"):
+            raise forms.ValidationError(_("Website must be secure (use HTTPS)."))
+        if not website.startswith("https://"):
             website = f"https://{website}"
         return website
