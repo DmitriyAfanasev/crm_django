@@ -20,7 +20,7 @@ from django.views.generic import (
 
 from .forms import ProductCreateForm
 from .models import Product
-from .dto_product import ProductCreateDTO
+from .dto_product import ProductCreateDTO, ProductUpdateDTO
 from .services import ProductService
 
 
@@ -91,6 +91,28 @@ class ProductUpdateView(
     model: type[Product] = Product
     form_class: ProductCreateForm = ProductCreateForm
     template_name: str = "service_product/products-edit.html"
+
+    def form_valid(self, form: ProductCreateForm) -> HttpResponse:
+        """
+        Устанавливаем пользователя, создавшего услугу и делаем проверки различного уровня и создаём запись в бд.
+        """
+        if form.is_valid():
+            form.instance.updated_by = User.objects.get(id=self.request.user.pk)
+
+            product_pk = self.object.pk
+
+            dto = ProductUpdateDTO(
+                pk=product_pk,
+                **form.cleaned_data,
+                updated_by=form.instance.updated_by,
+            )
+            try:
+                ProductService.checking_before_update(dto)
+            except ValueError as error:
+                form.add_error(None, str(error))
+                return self.form_invalid(form)
+
+            return super().form_valid(form)
 
     def get_success_url(self) -> HttpResponseRedirect:
         """При успешном редактировании, перенаправляет на страницу с деталями этой услуги."""
