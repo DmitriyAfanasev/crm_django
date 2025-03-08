@@ -1,7 +1,7 @@
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView, LogoutView
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 
