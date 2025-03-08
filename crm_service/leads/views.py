@@ -29,6 +29,7 @@ class LeadCreateView(CreateView):
     model = Lead
     form_class = LeadForm
 
+    @transaction.atomic
     def form_valid(self, form: LeadForm) -> HttpResponse:
         form.instance.created_by = User.objects.get(pk=self.request.user.pk)
 
@@ -51,6 +52,7 @@ class LeadUpdateView(UpdateView):
     form_class = LeadForm
     template_name_suffix = "_edit"
 
+    @transaction.atomic
     def form_valid(self, form: LeadForm) -> HttpResponse:
         """Если форма валидна, то устанавливаем того, кто проводит изменение данных, и возвращаем ответ дальше."""
         response = super().form_valid(form)
@@ -74,6 +76,10 @@ class LeadDeleteView(DeleteView):
             f"Удаление {self.model.__name__}: {self.object.full_name!r}, прошло успешно!",
         )
         return reverse_lazy("leads:leads_list")
+
+    @transaction.atomic
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
 
 
 @transaction.atomic

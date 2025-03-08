@@ -10,6 +10,7 @@ from django.views.generic import (
     DeleteView,
     TemplateView,
 )
+from django.db import transaction
 
 from .dto_ads_company import AdsCompanyCreateDTO
 from .models import AdsCompany
@@ -36,6 +37,7 @@ class AdsCompanyCreateView(PermissionRequiredMixin, CreateView):
         """При успешном создании компании, перенаправляет на страницу с детальной информации о компании."""
         return reverse_lazy("ads:ads_detail", kwargs={"pk": self.object.pk})
 
+    @transaction.atomic
     def form_valid(self, form: AdsCompanyCreateForm) -> HttpResponse:
         form.instance.created_by = User.objects.get(id=self.request.user.pk)
 
@@ -65,6 +67,10 @@ class AdsCompanyUpdateView(UpdateView):
         """При успешном создании услуги, перенаправляет на страницу с деталями этой услуги."""
         return reverse_lazy("ads:ads_detail", kwargs={"pk": self.object.pk})
 
+    @transaction.atomic
+    def form_valid(self, form: AdsCompanyCreateForm) -> HttpResponse:
+        return super().form_valid(form)
+
 
 class AdsCompanyDeleteView(DeleteView):
     model: AdsCompany = AdsCompany
@@ -72,6 +78,10 @@ class AdsCompanyDeleteView(DeleteView):
     def get_success_url(self) -> HttpResponseRedirect:
         """При успешном удалении компании, перенаправляет на страницу со списком компаний."""
         return reverse_lazy("ads:ads_list")
+
+    @transaction.atomic
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
 
 
 # TODO работает шаблон, но не логика которую он должен выводить

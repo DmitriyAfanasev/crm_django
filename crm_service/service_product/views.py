@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import (
     PermissionRequiredMixin,
     UserPassesTestMixin,
 )
+from django.db import transaction
 from django.db.models import QuerySet
 
 
@@ -54,6 +55,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
             "service_product:service_detail", kwargs={"pk": self.object.pk}
         )
 
+    @transaction.atomic
     def form_valid(self, form: ProductCreateForm) -> HttpResponse:
         """
         Устанавливаем пользователя, создавшего услугу и делаем проверки различного уровня и создаём запись в бд.
@@ -92,6 +94,7 @@ class ProductUpdateView(
     form_class: ProductCreateForm = ProductCreateForm
     template_name: str = "service_product/products-edit.html"
 
+    @transaction.atomic
     def form_valid(self, form: ProductCreateForm) -> HttpResponse:
         """
         Устанавливаем пользователя, создавшего услугу и делаем проверки различного уровня и создаём запись в бд.
@@ -155,3 +158,7 @@ class ProductDeleteView(DeleteView, PermissionRequiredMixin):
             self.request, f"Удаление услуги: {self.object.name!r}, прошло успешно!"
         )
         return reverse_lazy("service_product:service_list")
+
+    @transaction.atomic
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
