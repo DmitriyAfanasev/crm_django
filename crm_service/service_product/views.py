@@ -65,7 +65,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
 
             dto = ProductCreateDTO(
                 **form.cleaned_data,
-                created_by=form.instance.created_by.pk,
+                created_by=form.instance.created_by,
             )
             try:
                 ProductService.checking_before_creation(dto)
