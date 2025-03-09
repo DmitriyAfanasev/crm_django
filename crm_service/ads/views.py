@@ -85,5 +85,7 @@ class AdsCompanyDeleteView(DeleteView):
 
 
 # TODO работает шаблон, но не логика которую он должен выводить
-class AdsCompanyStatisticsView(TemplateView):
+class AdsCompanyStatisticsView(ListView):
     template_name = "ads/adscompany_statistic.html"
+    model = AdsCompany
+    context_object_name = "ads"
