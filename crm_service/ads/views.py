@@ -24,6 +24,8 @@ class AdsCompanyListView(ListView):
 
     model: AdsCompany = AdsCompany
     context_object_name: str = "ads"
+    paginate_by = 10
+    ordering = ("budget",)
 
 
 class AdsCompanyCreateView(PermissionRequiredMixin, CreateView):
