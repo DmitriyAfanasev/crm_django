@@ -23,9 +23,6 @@
                 <div>
                     {% if lead.customer %}
                         <a href="/customers/{{ lead.customer.pk }}" class="btn btn-secondary me-2">к странице клиента</a>
-                        <a href="{% url 'leads:convert_lead_to_inactive' lead.pk %}" class="btn btn-primary me-2">
-                            Убрать из активных
-                        </a>
                     {% else %}
                         <a href="{% url 'customers:customers_create' %}?lead_id={{ lead.pk }}" class="btn btn-primary me-2">
                             Перевести в активного
