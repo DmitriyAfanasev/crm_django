@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView,
@@ -10,6 +11,7 @@ from django.views.generic import (
 )
 from django.db import transaction
 
+from leads.models import Lead
 from .models import Customer
 from .forms import CustomerCreateForm
 
@@ -25,10 +27,18 @@ class CustomerCreateView(CreateView):
     model = Customer
     form_class = CustomerCreateForm
 
+    def get_initial(self) -> dict[str, Lead]:
+        """Предзаполнение поля 'lead' значением из URL."""
+        initial = super().get_initial()
+        lead_id = self.request.GET.get("lead_id")
+        if lead_id:
+            lead = get_object_or_404(Lead, pk=lead_id)
+            initial["lead"] = lead
+        return initial
+
     @transaction.atomic
     def form_valid(self, form: CustomerCreateForm) -> HttpResponse:
         form.instance.created_by = User.objects.get(pk=self.request.user.pk)
-        # TODO DTO слой добавить
         return super().form_valid(form)
 
     def get_success_url(self) -> HttpResponseRedirect:
