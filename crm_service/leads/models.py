@@ -41,7 +41,7 @@ class Lead(TimestampMixin, ActorMixin):
     campaign = models.ForeignKey(
         to=AdsCompany,
         on_delete=models.PROTECT,
-        related_name="customers",
+        related_name="leads",
         verbose_name=_("Campaign"),
     )
     is_active = models.BooleanField(
@@ -52,7 +52,9 @@ class Lead(TimestampMixin, ActorMixin):
     @property
     def full_name(self) -> str:
         """Возвращает полное имя клиента."""
-        return f"{self.first_name} {self.middle_name} {self.last_name}"
+        if self.middle_name:
+            return f"{self.first_name} {self.middle_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name}"
 
     @property
     def abbreviated_name(self) -> str:
@@ -69,4 +71,4 @@ class Lead(TimestampMixin, ActorMixin):
         return f"{first_name} {middle_name} {self.last_name}"
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__} - {self.email}"
+        return self.full_name
