@@ -1,3 +1,5 @@
+from django.apps import apps
+from django.db.models import Sum
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
@@ -59,3 +61,31 @@ class AdsCompanyService(BadWordsMixin, UserRoleService):
             return True
         except RequestException as error:
             raise ValueError(_(f"The site is unavailable: {error}"))
+
+    @staticmethod
+    def get_leads_count(company) -> int:
+        """Количество лидов компании"""
+        return company.leads.count()
+
+    @staticmethod
+    def get_customers_count(company) -> int:
+        """Количество конвертированных клиентов"""
+        return company.leads.filter(customer__isnull=False).count()
+
+    @staticmethod
+    def calculate_profit(company) -> float:
+        """Расчет процентной прибыли компании."""
+        Contract = apps.get_model("contracts.Contract")
+
+        total_income = (
+            Contract.objects.filter(customer__lead__campaign=company).aggregate(
+                income=Sum("cost")
+            )["income"]
+            or 0
+        )  # Защита от None
+
+        if company.budget == 0:
+            return 0.0
+
+        profit_percentage = ((total_income - company.budget) / company.budget) * 100
+        return round(profit_percentage, 2)
