@@ -23,6 +23,7 @@ class LeadListView(ListView):
     context_object_name = "leads"
     paginate_by = 10
     queryset = Lead.objects.all()
+    ordering = ("-created_at",)
 
 
 class LeadCreateView(CreateView):
