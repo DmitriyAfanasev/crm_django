@@ -21,6 +21,7 @@ class CustomerListView(ListView):
     model = Customer
     context_object_name = "customers"
     paginate_by = 10
+    ordering = ("contract__cost",)
 
 
 class CustomerCreateView(CreateView):
