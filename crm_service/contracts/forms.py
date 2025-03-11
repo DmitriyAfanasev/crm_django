@@ -10,7 +10,7 @@ from .models import Contract
 class ContractForm(forms.ModelForm):
     class Meta:
         model = Contract
-        fields = "__all__"
+        fields = ("name", "product", "file_document", "start_date", "end_date", "cost")
         widgets = {
             "start_date": forms.DateInput(
                 attrs={"type": "date", "class": "form-control"}

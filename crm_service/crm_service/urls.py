@@ -20,12 +20,12 @@ from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.urls import path, include
-from .views import HomePageView
+from .views import general_statistics
 
 
 # TODO добавить i18n_patterns
 urlpatterns = [
-    path("", HomePageView.as_view(), name="home"),
+    path("", general_statistics, name="home"),
     path("accounts/", include("accounts.urls")),
     path("admin/", admin.site.urls),
     path("products/", include("service_product.urls")),

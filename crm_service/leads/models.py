@@ -3,12 +3,12 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from django.db import models
 
-from utils.mixins import TimestampMixin
+from utils.mixins import TimestampMixin, ActorMixin
 from ads.models import AdsCompany
 
 
 # TODO Оператор может создавать, просматривать и редактировать потенциальных клиентов.
-class Lead(TimestampMixin, models.Model):
+class Lead(TimestampMixin, ActorMixin):
     """
     Модель перспективного клиента, но ещё не активного.
     Attributes:
@@ -41,7 +41,7 @@ class Lead(TimestampMixin, models.Model):
     campaign = models.ForeignKey(
         to=AdsCompany,
         on_delete=models.PROTECT,
-        related_name="customers",
+        related_name="leads",
         verbose_name=_("Campaign"),
     )
     is_active = models.BooleanField(
@@ -52,7 +52,9 @@ class Lead(TimestampMixin, models.Model):
     @property
     def full_name(self) -> str:
         """Возвращает полное имя клиента."""
-        return f"{self.first_name} {self.middle_name} {self.last_name}"
+        if self.middle_name:
+            return f"{self.first_name} {self.middle_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name}"
 
     @property
     def abbreviated_name(self) -> str:
@@ -69,4 +71,4 @@ class Lead(TimestampMixin, models.Model):
         return f"{first_name} {middle_name} {self.last_name}"
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__} - {self.email}"
+        return self.full_name

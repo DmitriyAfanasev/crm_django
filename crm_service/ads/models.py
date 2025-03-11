@@ -1,3 +1,6 @@
+from functools import cached_property
+
+from django.apps import apps
 from django.utils.translation import gettext_lazy as _
 
 from django.db import models
@@ -6,23 +9,20 @@ from django.db.models import (
     DecimalField,
     ForeignKey,
     EmailField,
-    FloatField,
+    Sum,
 )
 
 from service_product.models import Product
-from utils.mixins import TimestampMixin
-from utils.enums import Country, RatingChoice
-
-from datetime import timedelta
-from django.utils import timezone
+from utils.mixins import TimestampMixin, ActorMixin
+from utils.enums import Country
+from .models_as_description import PromotionChannel
 
 
 # TODO добавить селери таску на подтверждение регистрации
-# TODO переделать их в классы с названием и описанием не больше.
 # TODO добавить список соц сетей.
 
 
-class AdsCompany(TimestampMixin, models.Model):
+class AdsCompany(TimestampMixin, ActorMixin):
     """
     Модель для рекламной компании
 
@@ -52,19 +52,9 @@ class AdsCompany(TimestampMixin, models.Model):
     product: ForeignKey = models.ForeignKey(
         to=Product, on_delete=models.CASCADE, related_name="service"
     )
-    channel: CharField = models.CharField(
-        max_length=50,
-        choices=[
-            ("social_media", _("Social network")),
-            ("search_engines", _("Search engines")),
-            ("email", _("Email-newsletters")),
-            ("contextual", _("Contextual advertising")),
-            ("display", _("Display advertising")),
-            ("offline", _("Offline channels")),
-            ("partners", _("Partnership programs")),
-            ("messengers", _("Messengers")),
-            ("own_channels", _("Own channels")),
-        ],
+    channel: ForeignKey = models.ForeignKey(
+        to=PromotionChannel,
+        on_delete=models.PROTECT,
         verbose_name=_("Promotion channel"),
     )
     budget: DecimalField = models.DecimalField(
@@ -99,30 +89,23 @@ class AdsCompany(TimestampMixin, models.Model):
     def __str__(self) -> str:
         return self.name
 
-    def calculate_roi(self, revenue: float) -> float:
-        """
-        Рассчитывает ROI (Return on Investment) для рекламной компании.
-        :param revenue: Доход, полученный от рекламной компании.
-        :return: ROI в процентах.
-        """
-        if self.budget == 0:
-            return 0.0
-        return ((revenue - self.budget) / self.budget) * 100
+    @cached_property
+    def _service(self):
+        from .services import AdsCompanyService
 
-    def get_full_website_url(self) -> str:
-        """
-        Возвращает полный URL вебсайта.
-        """
-        if self.website and not self.website.startswith(("http://", "https://")):
-            return f"https://{self.website}"
-        return self.website
+        return AdsCompanyService()
 
-    def is_active(self) -> bool:
-        """
-        Проверяет, активна ли рекламная компания.
-        Компания считается активной, если она создана не более 30 дней назад.
-        """
-        return self.created_at >= timezone.now() - timedelta(days=30)
+    @property
+    def leads_count(self) -> int:
+        return self._service.get_leads_count(self)
+
+    @property
+    def customers_count(self) -> int:
+        return self._service.get_customers_count(self)
+
+    @property
+    def profit(self) -> float:
+        return self._service.calculate_profit(self)
 
 
 #     def update_rating(self) -> None:

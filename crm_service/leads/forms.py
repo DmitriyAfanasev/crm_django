@@ -51,7 +51,8 @@ class LeadForm(forms.ModelForm):
 
     def clean_middle_name(self) -> str:
         middle_name: str = self.cleaned_data.get("middle_name")
-        return self.validate_name(middle_name, "Middle name")
+        if middle_name:
+            return self.validate_name(middle_name, "Middle name")
 
     def clean_last_name(self) -> str:
         last_name: str = self.cleaned_data.get("last_name")

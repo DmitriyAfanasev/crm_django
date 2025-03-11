@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db import models
 
 from service_product.models import Product
+from utils.mixins import TimestampMixin, ActorMixin
 
 
 def create_directory_path_for_documents_customer(
@@ -14,7 +15,7 @@ def create_directory_path_for_documents_customer(
     )
 
 
-class Contract(models.Model):
+class Contract(TimestampMixin, ActorMixin):
     name = models.CharField(
         max_length=150,
         blank=False,

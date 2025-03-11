@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import (
     PermissionRequiredMixin,
     UserPassesTestMixin,
 )
+from django.db import transaction
 from django.db.models import QuerySet
 
 
@@ -20,7 +21,7 @@ from django.views.generic import (
 
 from .forms import ProductCreateForm
 from .models import Product
-from .dto_product import ProductCreateDTO
+from .dto_product import ProductCreateDTO, ProductUpdateDTO
 from .services import ProductService
 
 
@@ -54,6 +55,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
             "service_product:service_detail", kwargs={"pk": self.object.pk}
         )
 
+    @transaction.atomic
     def form_valid(self, form: ProductCreateForm) -> HttpResponse:
         """
         Устанавливаем пользователя, создавшего услугу и делаем проверки различного уровня и создаём запись в бд.
@@ -63,7 +65,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
 
             dto = ProductCreateDTO(
                 **form.cleaned_data,
-                created_by=form.instance.created_by.pk,
+                created_by=form.instance.created_by,
             )
             try:
                 ProductService.checking_before_creation(dto)
@@ -91,6 +93,29 @@ class ProductUpdateView(
     model: type[Product] = Product
     form_class: ProductCreateForm = ProductCreateForm
     template_name: str = "service_product/products-edit.html"
+
+    @transaction.atomic
+    def form_valid(self, form: ProductCreateForm) -> HttpResponse:
+        """
+        Устанавливаем пользователя, создавшего услугу и делаем проверки различного уровня и создаём запись в бд.
+        """
+        if form.is_valid():
+            form.instance.updated_by = User.objects.get(id=self.request.user.pk)
+
+            product_pk = self.object.pk
+
+            dto = ProductUpdateDTO(
+                pk=product_pk,
+                **form.cleaned_data,
+                updated_by=form.instance.updated_by,
+            )
+            try:
+                ProductService.checking_before_update(dto)
+            except ValueError as error:
+                form.add_error(None, str(error))
+                return self.form_invalid(form)
+
+            return super().form_valid(form)
 
     def get_success_url(self) -> HttpResponseRedirect:
         """При успешном редактировании, перенаправляет на страницу с деталями этой услуги."""
@@ -133,3 +158,7 @@ class ProductDeleteView(DeleteView, PermissionRequiredMixin):
             self.request, f"Удаление услуги: {self.object.name!r}, прошло успешно!"
         )
         return reverse_lazy("service_product:service_list")
+
+    @transaction.atomic
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
