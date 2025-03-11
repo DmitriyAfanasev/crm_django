@@ -17,6 +17,7 @@ class ContractListView(ListView):
     model = Contract
     context_object_name = "contracts"
     paginate_by = 10
+    ordering = ("-created_at",)
 
 
 class ContractCreateView(CreateView):
