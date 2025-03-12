@@ -1,15 +1,12 @@
 from functools import cached_property
 
-from django.apps import apps
 from django.utils.translation import gettext_lazy as _
-
 from django.db import models
 from django.db.models import (
     CharField,
     DecimalField,
     ForeignKey,
     EmailField,
-    Sum,
 )
 
 from service_product.models import Product
@@ -18,29 +15,25 @@ from utils.enums import Country
 from .models_as_description import PromotionChannel
 
 
-# TODO добавить селери таску на подтверждение регистрации
-# TODO добавить список соц сетей.
-
-
 class AdsCompany(TimestampMixin, ActorMixin):
     """
-    Модель для рекламной компании
+    Модель для рекламной компании.
 
-     Атрибуты:
-        name (str): Название компании\n
-        product (ForeignKey): Предоставляемая услуга\n
-        channel (str): Каналы продвижения\n
-        budget (int): Бюджет рекламной компании\n
-        country (str): Страна в которой находится офис компании\n
-        email (str): Электронная почта для обращений\n
-        website (str): Вебсайт компании
+    Атрибуты:
+        name (str): Название компании.
+        product (ForeignKey): Предоставляемая услуга.
+        channel (ForeignKey): Каналы продвижения.
+        budget (Decimal): Бюджет рекламной компании.
+        country (str): Страна, в которой находится офис компании.
+        email (str): Электронная почта для обращений.
+        website (str): Вебсайт компании.
     """
 
     class Meta:
         ordering: list[str] = ["name", "created_at"]
         verbose_name: str = _("Company")
         verbose_name_plural: str = _("Companies")
-        unique_together: tuple[str,] = (("name", "website"),)
+        unique_together: tuple[str, ...] = (("name", "website"),)
 
     name: CharField = models.CharField(
         max_length=100,
@@ -84,28 +77,37 @@ class AdsCompany(TimestampMixin, ActorMixin):
         verbose_name=_("Website"),
         help_text=_("Link to the website company"),
     )
-    # ratings: FloatField = models.FloatField(default=0, verbose_name=_("Rating"))
 
     def __str__(self) -> str:
+        """Возвращает название рекламной компании."""
         return self.name
 
     @cached_property
-    def _service(self):
+    def _service(self) -> "AdsCompanyService":
+        """Возвращает экземпляр сервиса для работы с рекламной компанией."""
         from .services import AdsCompanyService
 
         return AdsCompanyService()
 
     @property
     def leads_count(self) -> int:
+        """Возвращает количество лидов рекламной компании."""
         return self._service.get_leads_count(self)
 
     @property
     def customers_count(self) -> int:
+        """Возвращает количество активных клиентов рекламной компании."""
         return self._service.get_customers_count(self)
 
     @property
     def profit(self) -> float:
+        """Возвращает прибыль для данной рекламной компании."""
         return self._service.calculate_profit(self)
+
+    @property
+    def roi(self) -> float:
+        """Возвращает соотношение доходов к затратам."""
+        return self._service.calculate_roi(self)
 
 
 #     def update_rating(self) -> None:
