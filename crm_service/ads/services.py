@@ -15,13 +15,13 @@ from typing import TYPE_CHECKING
 
 from service_product.models import Product
 from utils.mixins.services_mixins import BadWordsMixin
+
 from core.check_user_service import UserRoleService
 
 if TYPE_CHECKING:
     from contracts.models import Contract
 
 
-# TODO можно будет добавить рейтинг для заказчиков, и если у них хороший рейтинг, делать скидку или брать их заказы из очереди первыми.
 class AdsCompanyService(BadWordsMixin, UserRoleService):
     name: str
     product: Product
