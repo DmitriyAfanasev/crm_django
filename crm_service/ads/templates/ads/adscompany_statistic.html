@@ -4,14 +4,49 @@
 <h2 class="fw-bold">Статистика рекламных компаний</h2>
 <div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
     <div class="col">
-        <ul class="list-group">
+        <div class="row row-cols-1 row-cols-md-2 g-4">
             {% for ad in ads %}
-            <li class="list-group-item list-group-item-light d-flex justify-content-between">
-                <a href="/ads/{{ ad.pk }}" class="text-decoration-none link-dark">{{ ad.name }}</a>
-                <p>Лидов: {{ ad.leads_count }} | Активных клиентов: {{ ad.customers_count }} | Соотношение контрактов к затратам: {{ ad.profit|default_if_none:"-" }}</p>
-            </li>
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="/ads/{{ ad.pk }}" class="text-decoration-none link-dark">{{ ad.name }}</a>
+                        </h5>
+                        <p class="card-text">
+                            <i class="fas fa-users"></i> Лидов: <strong>{{ ad.leads_count }}</strong>
+                        </p>
+                        <p class="card-text">
+                            <i class="fas fa-user-check"></i> Активных клиентов: <strong>{{ ad.customers_count }}</strong>
+                        </p>
+                        <p class="card-text">
+                            <i class="fas fa-percentage"></i> Рентабельность инвестиций:
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: {{ ad.roi }}%;" aria-valuenow="{{ ad.roi }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ ad.roi|default_if_none:"0" }}%
+                                </div>
+                            </div>
+                        </p>
+                        <p class="card-text">
+                            <i class="fas fa-percentage"></i> В процентах:
+                            <span class="badge bg-{% if ad.roi >= 0 %}success{% else %}danger{% endif %}">
+                        {{ ad.roi|default_if_none:"-" }}%
+                        </span>
+                        </p>
+                        <p class="card-text">
+                            <i class="fas fa-coins"></i> Чистый доход:
+                            <span class="badge bg-{% if ad.profit >= 0 %}success{% else %}danger{% endif %}">
+                                {{ ad.profit }} &#8381;
+                            </span>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/ads/{{ ad.pk }}" class="btn btn-primary btn-sm">Подробнее</a>
+                        <small class="text-muted float-end">Обновлено: {{ ad.updated_at|date:"d.m.Y H:i" }}</small>
+                    </div>
+                </div>
+            </div>
             {% endfor %}
-        </ul>
+        </div>
     </div>
 </div>
 {% endblock %}
