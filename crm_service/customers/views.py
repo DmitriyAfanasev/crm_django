@@ -11,6 +11,7 @@ from django.views.generic import (
 )
 from django.db import transaction
 
+from core.base import MyDeleteView
 from leads.models import Lead
 from .models import Customer
 from .forms import CustomerCreateForm
@@ -68,7 +69,7 @@ class CustomerUpdateView(UpdateView):
         return reverse_lazy("customers:customers_detail", kwargs={"pk": self.object.pk})
 
 
-class CustomerDeleteView(DeleteView):
+class CustomerDeleteView(MyDeleteView):
     model = Customer
     success_url = reverse_lazy("customers:customers_list")
 

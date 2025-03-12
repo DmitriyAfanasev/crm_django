@@ -1,9 +1,7 @@
-from django.contrib import messages
 from django.contrib.auth.models import User, Permission
 from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     PermissionRequiredMixin,
-    UserPassesTestMixin,
 )
 from django.db import transaction
 from django.db.models import QuerySet
@@ -16,16 +14,15 @@ from django.views.generic import (
     CreateView,
     DetailView,
     UpdateView,
-    DeleteView,
 )
 
+from core.base import MyDeleteView
 from .forms import ProductCreateForm
 from .models import Product
 from .dto_product import ProductCreateDTO, ProductUpdateDTO
 from .services import ProductService
 
 
-# TODO так же не забыть добавить все логически необходимые пермишены для всех вьюх.
 class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """
     Представление для списка всех услуг.
@@ -34,7 +31,7 @@ class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     Так же фильтрация стоит по не архивированным услугам.
     """
 
-    permission_required: tuple[Permission] = ("service_product.view_product",)
+    permission_required: Permission = "view_product"
     model: Product = Product
     template_name: str = "service_product/products-list.html"
     queryset: QuerySet[Product, Product] = Product.objects.filter(archived=False)
@@ -42,9 +39,10 @@ class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     paginate_by: int = 10
 
 
-class ProductCreateView(LoginRequiredMixin, CreateView):
+class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Представление для создания услуги."""
 
+    permission_required: Permission = "create_product"
     model: Product = Product
     form_class: ProductCreateForm = ProductCreateForm
     template_name: str = "service_product/products-create.html"
@@ -76,20 +74,19 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
             return super().form_valid(form)
 
 
-class ProductDetailView(LoginRequiredMixin, DetailView):
+class ProductDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """Представление для отображения деталей услуги."""
 
+    permission_required: Permission = "view_product"
     model: Product = Product
     template_name: str = "service_product/products-detail.html"
     context_object_name: str = "product"
 
 
-class ProductUpdateView(
-    UserPassesTestMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView
-):
+class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """Представление для редактирования данных об услуге."""
 
-    permission_required: tuple[Permission,] = ("service_product.change_product",)
+    permission_required: Permission = "change_product"
     model: type[Product] = Product
     form_class: ProductCreateForm = ProductCreateForm
     template_name: str = "service_product/products-edit.html"
@@ -137,28 +134,16 @@ class ProductUpdateView(
         return False
 
 
-class ProductDeleteView(DeleteView, PermissionRequiredMixin):
+class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, MyDeleteView):
     """
     Представление для подтверждения удаления услуги.
-
     """
 
-    permission_required: tuple[Permission,] = ("service_product.delete_product",)
+    permission_required: Permission = "delete_product"
     model: Product = Product
     context_object_name: str = "product"
-
-    def get_success_url(self) -> HttpResponseRedirect:
-        """
-        При успешном удалении перенаправляет на страницу со списком услуг.
-        Так же передаётся сообщение, что действие выполнено.
-        Оно будет отображено на странице 'service_product/products-list.html',
-        и будет удалено через пару секунд. Время настраивается в файле 'message_removed.js'
-        """
-        messages.success(
-            self.request, f"Удаление услуги: {self.object.name!r}, прошло успешно!"
-        )
-        return reverse_lazy("service_product:service_list")
+    success_url = reverse_lazy("service_product:service_list")
 
     @transaction.atomic
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request, *args, **kwargs) -> HttpResponse:
         return super().delete(request, *args, **kwargs)

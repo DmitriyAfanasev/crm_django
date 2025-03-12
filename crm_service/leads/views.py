@@ -12,7 +12,9 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
 )
+from poetry.console.commands import self
 
+from core.base import MyDeleteView
 from customers.models import Customer
 from .models import Lead
 from .forms import LeadForm
@@ -66,16 +68,10 @@ class LeadUpdateView(UpdateView):
         return reverse_lazy("leads:leads_detail", kwargs={"pk": self.object.pk})
 
 
-class LeadDeleteView(DeleteView):
+class LeadDeleteView(MyDeleteView):
     model = Lead
     context_object_name = "lead"
-
-    def get_success_url(self) -> HttpResponseRedirect:
-        messages.success(
-            self.request,
-            f"Удаление {self.model.__name__}: {self.object.full_name!r}, прошло успешно!",
-        )
-        return reverse_lazy("leads:leads_list")
+    success_url = reverse_lazy("leads:leads_list")
 
     @transaction.atomic
     def delete(self, request, *args, **kwargs):

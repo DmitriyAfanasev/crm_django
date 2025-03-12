@@ -1,60 +1,74 @@
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.urls import reverse_lazy
-from django.views.generic import (
-    ListView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-    DetailView,
-)
+from django.views.generic import ListView, CreateView, UpdateView, DetailView
 
+from core.base import MyDeleteView
 from .forms import ContractForm
 from .models import Contract
 
 
-class ContractListView(ListView):
-    model = Contract
-    context_object_name = "contracts"
-    paginate_by = 10
-    ordering = ("-created_at",)
+class ContractListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    """Представление для отображения списка контрактов."""
+
+    permission_required: str = "view_contract"
+    model: Contract = Contract
+    context_object_name: str = "contracts"
+    paginate_by: int = 10
+    ordering: tuple[str,] = ("-created_at",)
 
 
-class ContractCreateView(CreateView):
-    model = Contract
-    form_class = ContractForm
-    success_url = reverse_lazy("contracts:contract_list")
+class ContractCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """Представление для создания нового контракта."""
+
+    permission_required: str = "add_contract"
+    model: Contract = Contract
+    form_class: ContractForm = ContractForm
+    success_url: str = reverse_lazy("contracts:contract_list")
 
     @transaction.atomic
-    def form_valid(self, form):
+    def form_valid(self, form: ContractForm) -> HttpResponse:
+        """Обрабатывает валидную форму."""
         return super().form_valid(form)
 
 
-class ContractDetailView(DetailView):
-    model = Contract
-    context_object_name = "contract"
-    form_class = ContractForm
+class ContractDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    """Представление для детального просмотра контракта."""
+
+    permission_required: str = "view_contract"
+    model: Contract = Contract
+    context_object_name: str = "contract"
+    form_class: ContractForm = ContractForm
 
 
-class ContractUpdateView(UpdateView):
-    model = Contract
-    form_class = ContractForm
-    template_name_suffix = "_edit"
+class ContractUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """Представление для редактирования контракта."""
 
-    def get_success_url(self) -> HttpResponse:
-        print(self.__class__.__name__)
+    permission_required: str = "change_contract"
+    model: Contract = Contract
+    form_class: ContractForm = ContractForm
+    template_name_suffix: str = "_edit"
+
+    def get_success_url(self) -> str:
+        """Возвращает URL для перенаправления после успешного редактирования."""
         return reverse_lazy("contracts:contract_detail", kwargs={"pk": self.object.pk})
 
     @transaction.atomic
-    def form_valid(self, form):
+    def form_valid(self, form: ContractForm) -> HttpResponse:
+        """Обрабатывает форму на корректность данных."""
         return super().form_valid(form)
 
 
-class ContractDeleteView(DeleteView):
-    model = Contract
-    context_object_name = "contract"
-    success_url = reverse_lazy("contracts:contract_list")
+class ContractDeleteView(LoginRequiredMixin, PermissionRequiredMixin, MyDeleteView):
+    """Представление для удаления контракта."""
+
+    permission_required: str = "delete_contract"
+    model: Contract = Contract
+    context_object_name: str = "contract"
+    success_url: str = reverse_lazy("contracts:contract_list")
 
     @transaction.atomic
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        """Обрабатывает запрос на удаление контракта."""
         return super().delete(request, *args, **kwargs)
