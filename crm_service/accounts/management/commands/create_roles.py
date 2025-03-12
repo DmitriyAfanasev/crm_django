@@ -5,6 +5,8 @@ from service_product.models import Product
 
 
 class Command(BaseCommand):
+    """Создаёт роли и назначает разрешения."""
+
     help = "Создаёт роли и назначает разрешения"
 
     def handle(self, *args, **kwargs) -> None:
@@ -64,6 +66,7 @@ class Command(BaseCommand):
         self.add_view_statistics_permission()
 
     def add_permission_to_group(self, perm, group, model_to_app_label):
+        """Добавляет указанные права доступа указанной группе."""
         try:
             action, model_name = perm.split("_", 1)
             app_label, model = model_to_app_label.get(model_name, (None, None))
@@ -82,6 +85,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def add_view_statistics_permission():
+        """Добавляет право просмотра статистики всем группам."""
         can_view_statistics, _ = Permission.objects.get_or_create(
             codename="can_view_statistics",
             name="Can view statistics",
