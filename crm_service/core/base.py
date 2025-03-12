@@ -2,7 +2,14 @@ from dataclasses import dataclass
 from typing import Protocol, Optional
 
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.db import models
+from django.http import Http404
+from django.views.generic import DeleteView
+
+import logging
+
+logger = logging.getLogger("services")
 
 
 # TODO подумать, какие интерфейсы обязаны иметь все сервисы
@@ -70,3 +77,17 @@ class BaseService(ServiceProtocol):
 class BaseDTO:
     def to_dict(self) -> dict[str, Optional[str]]:
         return {key: value for key, value in self.__dict__.items()}
+
+
+class MyDeleteView(DeleteView):
+    def get_success_url(self) -> str:
+        messages.success(self.request, f"{self.object.name!r} успешно удаленно.")
+        if self.success_url:
+            logger.info(
+                f"{self.object.__class__.__name__} {self.object.name!r} удалён пользователем {self.request.user}."
+            )
+            return self.success_url
+        else:
+            raise Http404(
+                "success_url  не был указан. Не понятно куда перенаправлять пользователя после удаления. Укажите, например, страницу со списком этого же объекта"
+            )
