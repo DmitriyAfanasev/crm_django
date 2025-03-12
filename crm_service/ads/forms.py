@@ -13,8 +13,8 @@ class AdsCompanyCreateForm(forms.ModelForm):
     """Форма для создания рекламной компании."""
 
     class Meta:
-        model = AdsCompany
-        fields = (
+        model: AdsCompany = AdsCompany
+        fields: tuple[str, ...] = (
             "name",
             "product",
             "budget",
@@ -23,7 +23,7 @@ class AdsCompanyCreateForm(forms.ModelForm):
             "website",
             "channel",
         )
-        widgets = {
+        widgets: dict[str, forms.Widget] = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
             "product": forms.Select(attrs={"class": "form-control"}),
             "budget": forms.TextInput(attrs={"class": "form-control"}),
@@ -34,12 +34,14 @@ class AdsCompanyCreateForm(forms.ModelForm):
         }
 
     def clean_name(self) -> str:
+        """Проверяет, что имя рекламной компании не короче 3 символов."""
         name: str = self.cleaned_data["name"]
         if len(name) < 3:
             raise forms.ValidationError(_("Name must be at least 3 characters long."))
         return name
 
     def clean_budget(self) -> float:
+        """Проверяет, что бюджет не меньше стоимости услуги."""
         budget: float = self.cleaned_data["budget"]
         product: Product = self.cleaned_data["product"]
         if budget < product.cost:
@@ -49,12 +51,14 @@ class AdsCompanyCreateForm(forms.ModelForm):
         return budget
 
     def clean_country(self) -> str:
+        """Проверяет, что страна указана."""
         country: str = self.cleaned_data["country"]
         if country is None:
             raise forms.ValidationError(_("Country must be provided."))
         return country
 
     def clean_website(self) -> str:
+        """Проверяет, что веб-сайт начинается с HTTPS."""
         website: str = self.cleaned_data["website"]
         if website.startswith("http://"):
             raise forms.ValidationError(_("Website must be secure (use HTTPS)."))
