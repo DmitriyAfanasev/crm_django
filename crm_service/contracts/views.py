@@ -12,7 +12,7 @@ from .models import Contract
 class ContractListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """Представление для отображения списка контрактов."""
 
-    permission_required: str = "view_contract"
+    permission_required: str = "contracts.view_contract"
     model: Contract = Contract
     context_object_name: str = "contracts"
     paginate_by: int = 10
@@ -22,7 +22,7 @@ class ContractListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class ContractCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Представление для создания нового контракта."""
 
-    permission_required: str = "add_contract"
+    permission_required: str = "contracts.add_contract"
     model: Contract = Contract
     form_class: ContractForm = ContractForm
     success_url: str = reverse_lazy("contracts:contract_list")
@@ -36,7 +36,7 @@ class ContractCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
 class ContractDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """Представление для детального просмотра контракта."""
 
-    permission_required: str = "view_contract"
+    permission_required: str = "contracts.view_contract"
     model: Contract = Contract
     context_object_name: str = "contract"
     form_class: ContractForm = ContractForm
@@ -45,7 +45,7 @@ class ContractDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView
 class ContractUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """Представление для редактирования контракта."""
 
-    permission_required: str = "change_contract"
+    permission_required: str = "contracts.change_contract"
     model: Contract = Contract
     form_class: ContractForm = ContractForm
     template_name_suffix: str = "_edit"
@@ -63,7 +63,7 @@ class ContractUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
 class ContractDeleteView(LoginRequiredMixin, PermissionRequiredMixin, MyDeleteView):
     """Представление для удаления контракта."""
 
-    permission_required: str = "delete_contract"
+    permission_required: str = "contracts.delete_contract"
     model: Contract = Contract
     context_object_name: str = "contract"
     success_url: str = reverse_lazy("contracts:contract_list")

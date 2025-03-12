@@ -31,7 +31,7 @@ class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     Так же фильтрация стоит по не архивированным услугам.
     """
 
-    permission_required: Permission = "view_product"
+    permission_required: Permission = "products.view_product"
     model: Product = Product
     template_name: str = "service_product/products-list.html"
     queryset: QuerySet[Product, Product] = Product.objects.filter(archived=False)
@@ -42,7 +42,7 @@ class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Представление для создания услуги."""
 
-    permission_required: Permission = "create_product"
+    permission_required: Permission = "products.create_product"
     model: Product = Product
     form_class: ProductCreateForm = ProductCreateForm
     template_name: str = "service_product/products-create.html"
@@ -77,7 +77,7 @@ class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
 class ProductDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """Представление для отображения деталей услуги."""
 
-    permission_required: Permission = "view_product"
+    permission_required: Permission = "products.view_product"
     model: Product = Product
     template_name: str = "service_product/products-detail.html"
     context_object_name: str = "product"
@@ -86,7 +86,7 @@ class ProductDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView)
 class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """Представление для редактирования данных об услуге."""
 
-    permission_required: Permission = "change_product"
+    permission_required: Permission = "products.change_product"
     model: type[Product] = Product
     form_class: ProductCreateForm = ProductCreateForm
     template_name: str = "service_product/products-edit.html"
@@ -128,7 +128,7 @@ class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
             иначе доступ будет закрыт.
         """
         if self.request.user.is_superuser or self.request.user.has_perm(
-            "service_product.change_product"
+            "products.change_product"
         ):
             return True
         return False
@@ -139,7 +139,7 @@ class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, MyDeleteVie
     Представление для подтверждения удаления услуги.
     """
 
-    permission_required: Permission = "delete_product"
+    permission_required: Permission = "products.delete_product"
     model: Product = Product
     context_object_name: str = "product"
     success_url = reverse_lazy("service_product:service_list")

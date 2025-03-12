@@ -20,7 +20,7 @@ from .services import AdsCompanyService
 class AdsCompanyListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """Представление для списка всех рекламных компаний в системе."""
 
-    permission_required: str = "view_adscompany"
+    permission_required: str = "ads.view_adscompany"
     model: AdsCompany = AdsCompany
     context_object_name: str = "ads"
     paginate_by: int = 10
@@ -30,7 +30,7 @@ class AdsCompanyListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class AdsCompanyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Представление для маркетологов и всех у кого есть право на создание рекламных компаний."""
 
-    permission_required: str = "add_adscompany"
+    permission_required: str = "ads.add_adscompany"
     model: AdsCompany = AdsCompany
     form_class: AdsCompanyCreateForm = AdsCompanyCreateForm
 
@@ -60,7 +60,7 @@ class AdsCompanyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
 class AdsCompanyDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """Представление для детального просмотра рекламной компании."""
 
-    permission_required: str = "view_company"
+    permission_required: str = "ads.view_adscompany"
     model: AdsCompany = AdsCompany
     context_object_name: str = "company"
 
@@ -68,7 +68,7 @@ class AdsCompanyDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
 class AdsCompanyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """Представление для редактирования рекламной компании."""
 
-    permission_required: str = "change_adscompany"
+    permission_required: str = "ads.change_adscompany"
     model: AdsCompany = AdsCompany
     form_class: AdsCompanyCreateForm = AdsCompanyCreateForm
     template_name_suffix: str = "-edit"
@@ -86,7 +86,7 @@ class AdsCompanyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
 class AdsCompanyDeleteView(LoginRequiredMixin, PermissionRequiredMixin, MyDeleteView):
     """Представление для удаления рекламной компании."""
 
-    permission_required: str = "delete_adscompany"
+    permission_required: str = "ads.delete_adscompany"
     model: AdsCompany = AdsCompany
     success_url = reverse_lazy("ads:ads_list")
 

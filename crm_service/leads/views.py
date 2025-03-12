@@ -18,7 +18,7 @@ from .forms import LeadForm
 class LeadListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """Представление для списка лидов."""
 
-    permission_required: str = "view_lead"
+    permission_required: str = "leads.view_lead"
     model: Lead = Lead
     context_object_name: str = "leads"
     paginate_by: int = 10
@@ -28,7 +28,7 @@ class LeadListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class LeadCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Представление для создания нового лида."""
 
-    permission_required: str = "add_lead"
+    permission_required: str = "leads.add_lead"
     model: Lead = Lead
     form_class: LeadForm = LeadForm
 
@@ -46,7 +46,7 @@ class LeadCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 class LeadDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """Представление для отображения деталей лида."""
 
-    permission_required = "view_lead"
+    permission_required = "leads.view_lead"
     model: Lead = Lead
     context_object_name: str = "lead"
 
@@ -54,7 +54,7 @@ class LeadDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 class LeadUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """Представление для обновления информации о лиде."""
 
-    permission_required: str = "change_lead"
+    permission_required: str = "leads.change_lead"
     model: Lead = Lead
     context_object_name: str = "lead"
     form_class: LeadForm = LeadForm
@@ -74,7 +74,7 @@ class LeadUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 class LeadDeleteView(LoginRequiredMixin, PermissionRequiredMixin, MyDeleteView):
     """Представление для удаления лида."""
 
-    permission_required = "delete_lead"
+    permission_required = "leads.delete_lead"
     model = Lead
     context_object_name = "lead"
     success_url = reverse_lazy("leads:leads_list")

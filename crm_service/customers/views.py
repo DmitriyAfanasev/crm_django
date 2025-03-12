@@ -20,7 +20,7 @@ from .forms import CustomerForm
 class CustomerListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """Представление списка всех активных клиентов."""
 
-    permission_required: str = "view_customer"
+    permission_required: str = "customers.view_customer"
     model: Customer = Customer
     context_object_name: str = "customers"
     paginate_by: int = 10
@@ -30,7 +30,7 @@ class CustomerListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class CustomerCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Представления для перевода лида в активного клиента."""
 
-    permission_required: str = "view_customer"
+    permission_required: str = "customers.view_customer"
     model: Customer = Customer
     form_class: CustomerForm = CustomerForm
 
@@ -57,7 +57,7 @@ class CustomerCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
 class CustomerDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """Представление для детального просмотра клиента."""
 
-    permission_required: str = "view_customer"
+    permission_required: str = "customers.view_customer"
     model: Customer = Customer
     context_object_name: str = "customer"
 
@@ -65,7 +65,7 @@ class CustomerDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView
 class CustomerUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """Представление для редактирования клиента."""
 
-    permission_required: str = "change_customer"
+    permission_required: str = "customers.change_customer"
     model: Customer = Customer
     context_object_name: str = "customer"
     form_class: CustomerForm = CustomerForm
@@ -87,7 +87,7 @@ class CustomerUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
 class CustomerDeleteView(LoginRequiredMixin, PermissionRequiredMixin, MyDeleteView):
     """Представление для удаления клиента."""
 
-    permission_required = "delete_customer"
+    permission_required = "customers.delete_customer"
     model: Customer = Customer
     success_url: str = reverse_lazy("customers:customers_list")
 
