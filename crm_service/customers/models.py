@@ -7,9 +7,15 @@ from utils.mixins import TimestampMixin, ActorMixin
 from leads.models import Lead
 
 
-# Менеджер может создавать, просматривать и редактировать контракты, смотреть потенциальных клиентов и переводить их в активных.
 class Customer(TimestampMixin, ActorMixin):
-    """Активный клиент пользующийся услугами компаний."""
+    """
+    Активный клиент пользующийся услугами компаний.
+
+    Атрибуты:
+        lead (Lead): Лид из которого создан клиент.
+        contract (Contract): Контракт с клиентом.
+        archived (BooleanField): Архивирован ли клиент.
+    """
 
     lead: Lead = models.OneToOneField(
         blank=False,
@@ -40,4 +46,5 @@ class Customer(TimestampMixin, ActorMixin):
         )
 
     def __str__(self) -> str:
+        """Возвращает полное имя клиента."""
         return f"Customer: {self.lead.full_name}"

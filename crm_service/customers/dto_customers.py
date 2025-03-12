@@ -1,31 +1,35 @@
 from typing import Optional, TYPE_CHECKING
-from django.contrib.auth.models import User
+
 from core.base import BaseDTO
 
 if TYPE_CHECKING:
     from leads.models import Lead
+    from contracts.models import Contract
+    from django.contrib.auth.models import User
 
 
-class DTOCustomers(BaseDTO):
+class DTOCustomer(BaseDTO):
     """
     Data Transfer Object (DTO) для представления информации о клиенте.
 
     Атрибуты:
         pk (Optional[int]): Уникальный идентификатор клиента. Может быть None для новых клиентов.
         lead (Lead): Лид, которым является клиент.
-        is_active (bool): Статус активности клиента.
+        contract (Contract): Контракт, который заключил клиент
+        archived (bool): Статус активности клиента.
         created_by (Optional[User]): Пользователь, создавший запись о клиенте. Может быть None.
         updated_by (Optional[User]): Пользователь, обновивший запись о клиенте. Может быть None.
     """
 
-    pk: Optional[int]
     lead: "Lead"
-    is_active: bool
-    created_by: Optional[User]
-    updated_by: Optional[User]
+    contract: "Contract"
+    archived: bool
+    pk: Optional[int] = None
+    created_by: Optional[User] = None
+    updated_by: Optional[User] = None
 
 
-class DTOCustomersCreate(DTOCustomers):
+class DTOCustomerCreate(DTOCustomer):
     """
     Data Transfer Object (DTO) для создания клиента.
 
@@ -38,7 +42,7 @@ class DTOCustomersCreate(DTOCustomers):
     created_by: User
 
 
-class DTOCustomersUpdate(DTOCustomers):
+class DTOCustomerUpdate(DTOCustomer):
     """
     Data Transfer Object (DTO) для обновления клиента.
 
