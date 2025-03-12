@@ -8,6 +8,8 @@ from .models import Contract
 
 
 class ContractForm(forms.ModelForm):
+    """Форма для создания и редактирования контракта."""
+
     class Meta:
         model = Contract
         fields = ("name", "product", "file_document", "start_date", "end_date", "cost")
@@ -25,14 +27,18 @@ class ContractForm(forms.ModelForm):
         }
 
     def clean_start_date(self) -> datetime.date:
-        """Проверка, что дата начала договора не раньше, чем сегодня."""
-        start_date = self.cleaned_data["start_date"]
-        if start_date < datetime.date.today():
-            raise forms.ValidationError(
-                _("The contract cannot be started earlier than today")
-            )
-
+        """Проверяет, что дата начала контракта указана."""
+        start_date = self.cleaned_data.get("start_date")
+        if start_date is None:
+            raise forms.ValidationError(_("Start date is required."))
         return start_date
+
+    def clean_end_date(self) -> datetime.date:
+        """Проверяет, что дата окончания контракта указана."""
+        end_date = self.cleaned_data.get("end_date")
+        if end_date is None:
+            raise forms.ValidationError(_("End date is required."))
+        return end_date
 
     def clean(self) -> dict:
         """
@@ -69,17 +75,17 @@ class ContractForm(forms.ModelForm):
         Проверка, что файл подходящего расширения, а так же его размер не более 10 МБ (по умолчанию).
         """
         file_document: File = self.cleaned_data["file_document"]
-        allowed_extensions = [
+        allowed_extensions = {
             ".pdf",
             ".docx",
-        ]
+        }
         if not any(
             file_document.name.lower().endswith(extension)
             for extension in allowed_extensions
         ):
             raise forms.ValidationError(_("Only PDF and DOCX files are allowed."))
 
-        max_size = 10 * 1024 * 1024  # 10 МБ
+        max_size: int = 10 * 1024 * 1024  # 10 МБ
         if file_document.size > max_size:
             raise forms.ValidationError(
                 _("The file size cannot exceed {} MB. Your file size: {} MB").format(
@@ -89,7 +95,8 @@ class ContractForm(forms.ModelForm):
         return file_document
 
     def clean_cost(self) -> float:
-        cost = self.cleaned_data["cost"]
+        """Проверяет, что стоимость контракта положительна."""
+        cost: float = self.cleaned_data["cost"]
         if cost <= 0:
             raise forms.ValidationError(_("The cost is invalid."))
         return cost
