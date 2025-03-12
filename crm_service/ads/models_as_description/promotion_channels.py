@@ -7,8 +7,8 @@ class PromotionChannel(models.Model):
     Модель для каналов продвижения.
 
     Атрибуты:
-        name (str): Название канала продвижения.
-        description (str): Описание канала продвижения.
+        name (str): Название
+        description (str): Описание
     """
 
     name = models.CharField(
@@ -26,4 +26,5 @@ class PromotionChannel(models.Model):
     )
 
     def __str__(self) -> str:
+        """Возвращает название канала продвижения"""
         return self.name
