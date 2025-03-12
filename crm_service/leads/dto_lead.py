@@ -26,15 +26,15 @@ class BaseLeadDTO(BaseDTO):
         updated_by (Optional[User]): Пользователь, обновивший лида. Может быть None.
     """
 
-    pk: Optional[int]
     first_name: str
-    middle_name: Optional[str]
     last_name: str
     email: str
     phone_number: str
     campaign: "AdsCompany"
-    created_by: Optional[User]
-    updated_by: Optional[User]
+    pk: Optional[int] = None
+    middle_name: Optional[str] = None
+    created_by: Optional[User] = None
+    updated_by: Optional[User] = None
 
 
 @dataclass
@@ -52,7 +52,7 @@ class LeadCreateDTO(BaseLeadDTO):
 
 
 @dataclass
-class LeadUpdateDTO(LeadCreateDTO):
+class LeadUpdateDTO(BaseLeadDTO):
     """
     Data Transfer Object (DTO) для обновления лида.
 

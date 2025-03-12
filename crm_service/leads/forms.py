@@ -1,12 +1,10 @@
 from django.utils.translation import gettext_lazy as _
-
 from django import forms
-
 from .models import Lead
 
 
 class LeadForm(forms.ModelForm):
-    """Форма для создания лида, или обновления информации о нём"""
+    """Форма для создания лида или обновления информации о нём."""
 
     class Meta:
         model = Lead
@@ -37,23 +35,29 @@ class LeadForm(forms.ModelForm):
         """Вспомогательный метод для проверки имени или фамилии."""
         if len(name.split(" ")) > 1:
             raise forms.ValidationError(
-                _(f"{field_name} must consist of a single word or be separated by '-'")
+                _(
+                    f"{field_name} должно состоять из одного слова или быть разделено '-'"
+                )
             )
         if len(name) < 2:
             raise forms.ValidationError(
-                _(f"{field_name} must contain at least 2 characters")
+                _(f"{field_name} должно содержать как минимум 2 символа")
             )
         return name
 
     def clean_first_name(self) -> str:
+        """Валидация имени."""
         first_name: str = self.cleaned_data.get("first_name")
-        return self.validate_name(first_name, "First name")
+        return self.validate_name(first_name, "Имя")
 
     def clean_middle_name(self) -> str:
-        middle_name: str = self.cleaned_data.get("middle_name")
+        """Валидация отчества."""
+        middle_name: str = self.cleaned_data.get("middle_name", "")
         if middle_name:
-            return self.validate_name(middle_name, "Middle name")
+            return self.validate_name(middle_name, "Отчество")
+        return middle_name
 
     def clean_last_name(self) -> str:
+        """Валидация фамилии."""
         last_name: str = self.cleaned_data.get("last_name")
-        return self.validate_name(last_name, "Last name")
+        return self.validate_name(last_name, "Фамилия")
