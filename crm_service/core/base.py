@@ -75,12 +75,21 @@ class BaseService(ServiceProtocol):
 
 @dataclass
 class BaseDTO:
+    """Базовый класс DTO"""
+
     def to_dict(self) -> dict[str, Optional[str]]:
+        """Преобразует все атрибуты класса в словарь."""
         return {key: value for key, value in self.__dict__.items()}
 
 
 class MyDeleteView(DeleteView):
+    """Кастомный Delete View для переопределения метода get_success_url всех его наследников."""
+
     def get_success_url(self) -> str:
+        """
+        Отправка сообщения об успешном удалении.
+        И перенаправляет на заданную страницу или вызывает ошибку 404.
+        """
         messages.success(self.request, f"{self.object.name!r} успешно удаленно.")
         if self.success_url:
             logger.info(
