@@ -1,4 +1,5 @@
 from functools import cached_property
+from typing import TYPE_CHECKING
 
 from django.utils.translation import gettext_lazy as _
 from django.db import models
@@ -13,6 +14,9 @@ from service_product.models import Product
 from utils.mixins import TimestampMixin, ActorMixin
 from utils.enums import Country
 from .models_as_description import PromotionChannel
+
+if TYPE_CHECKING:
+    from .services import AdsCompanyService
 
 
 class AdsCompany(TimestampMixin, ActorMixin):
@@ -108,63 +112,3 @@ class AdsCompany(TimestampMixin, ActorMixin):
     def roi(self) -> float:
         """Возвращает соотношение доходов к затратам."""
         return self._service.calculate_roi(self)
-
-
-#     def update_rating(self) -> None:
-#         """
-#         Обновляет рейтинг компании на основе всех оценок, исключая "Нет оценки".
-#         """
-#         ratings = self.ratings.exclude(rating=None)
-#         if ratings.exists():
-#             total_rating = sum(rating.rating for rating in ratings)
-#             self.rating = total_rating / ratings.count()
-#         else:
-#             self.rating = 0
-#         self.save()
-#
-#     def add_rating(self, user: "Active_client", rating: RatingChoice) -> None:
-#         """
-#         Добавляет оценку от пользователя и обновляет рейтинг компании.
-#         :param user: Пользователь, который оставляет оценку.
-#         :param rating: Оценка из перечисления RatingChoice.
-#         """
-#         rating_value = RatingChoice.get_rating_value(rating)
-#         CompanyRating.objects.update_or_create(
-#             company=self,
-#             user=user,
-#             defaults={"rating": rating_value},
-#         )
-#         self.update_rating()
-#
-#
-# class CompanyRating(models.Model):
-#     """
-#     Модель для хранения оценок, оставленных пользователями для компании.
-#     """
-#
-#     company: ForeignKey = models.ForeignKey(
-#         to=AdsCompany,
-#         on_delete=models.CASCADE,
-#         related_name="ratings",
-#         verbose_name=_("Company"),
-#     )
-#     client: ForeignKey = models.ForeignKey(
-#         to=ActiveClient,
-#         on_delete=models.CASCADE,
-#         related_name="company_ratings",
-#         verbose_name=_("Client"),
-#     )
-#     rating: models.IntegerField = models.IntegerField(
-#         choices=RatingChoice.choices(),
-#         blank=True,
-#         null=True,
-#         verbose_name=_("Rating"),
-#         help_text=_("Rating from 0 to 5"),
-#     )
-#
-#     class Meta:
-#         unique_together: tuple[tuple[str, str],] = (
-#             ("company", "client"),
-#         )
-#         verbose_name: str = _("Company Rating")
-#         verbose_name_plural: str = _("Company Ratings")
