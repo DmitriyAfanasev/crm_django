@@ -1,5 +1,6 @@
 {% extends "crm_service/_base.html" %}
-
+{% load static %}
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
 {% block content %}
 <div class="container my-5">
     <h2 class="fw-bold text-center mb-4">Детальная информация о контракте</h2>
@@ -17,7 +18,9 @@
                         </p>
                         <p class="card-text">
                             <i class="fas fa-calendar-alt me-2"></i>
-                            <strong>Период:</strong> С {{ contract.start_date }} по {{ contract.end_date }}
+                            <strong>Период:</strong>
+                            с <span class="date">{{ contract.start_date }}</span>
+                            по <span class="date">{{ contract.end_date }}</span>
                         </p>
                         <p class="card-text">
                             <i class="fas fa-money-bill-wave me-2"></i>
