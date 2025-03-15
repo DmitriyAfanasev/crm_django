@@ -5,10 +5,16 @@ from django.utils.translation import gettext_lazy as _
 from django import forms
 
 from .models import Contract
+from .services import ContractService
 
 
 class ContractForm(forms.ModelForm):
     """Форма для создания и редактирования контракта."""
+
+    def __init__(self, *args, user=None, **kwargs) -> None:
+        """Добавление user'a в форму."""
+        super().__init__(*args, **kwargs)
+        self.user = user
 
     class Meta:
         model = Contract
@@ -41,32 +47,12 @@ class ContractForm(forms.ModelForm):
         return end_date
 
     def clean(self) -> dict:
-        """
-        Проверка, что день окончания договора не меньше, чем начало.
-        А так же длительности контракта, он не может длиться меньше,
-        чем один день, но и не больше 5 лет (по умолчанию).
-        """
         cleaned_data = super().clean()
         start_date = cleaned_data.get("start_date")
         end_date = cleaned_data.get("end_date")
 
-        if end_date < start_date:
-            raise forms.ValidationError(
-                _("The end of the contract cannot be earlier than its beginning")
-            )
-
-        min_duration = datetime.timedelta(days=1)
-        if (end_date - start_date) <= min_duration:
-            raise forms.ValidationError(
-                _("The contract duration must be at least 1 day.")
-            )
-
-        # Проверка максимальной длительности (5 лет)
-        max_duration = datetime.timedelta(days=365 * 5)
-        if (end_date - start_date) > max_duration:
-            raise forms.ValidationError(
-                _("The contract duration cannot exceed 5 years.")
-            )
+        if start_date and end_date:
+            ContractService.validate_dates(start_date, end_date)
 
         return cleaned_data
 
@@ -75,28 +61,14 @@ class ContractForm(forms.ModelForm):
         Проверка, что файл подходящего расширения, а так же его размер не более 10 МБ (по умолчанию).
         """
         file_document: File = self.cleaned_data["file_document"]
-        allowed_extensions = {
-            ".pdf",
-            ".docx",
-        }
-        if not any(
-            file_document.name.lower().endswith(extension)
-            for extension in allowed_extensions
-        ):
-            raise forms.ValidationError(_("Only PDF and DOCX files are allowed."))
-
-        max_size: int = 10 * 1024 * 1024  # 10 МБ
-        if file_document.size > max_size:
-            raise forms.ValidationError(
-                _("The file size cannot exceed {} MB. Your file size: {} MB").format(
-                    max_size // (1024 * 1024), file_document.size // (1024 * 1024)
-                )
-            )
+        ContractService.validate_file(file_document)
         return file_document
 
     def clean_cost(self) -> float:
         """Проверяет, что стоимость контракта положительна."""
-        cost: float = self.cleaned_data["cost"]
-        if cost <= 0:
-            raise forms.ValidationError(_("The cost is invalid."))
+        cost: float = self.cleaned_data.get("cost")
+        contract_pk = self.instance.pk
+        if cost is None:
+            raise forms.ValidationError(_("Cost is required."))
+        ContractService.validate_cost(cost, contract_pk, user=self.user)
         return cost
