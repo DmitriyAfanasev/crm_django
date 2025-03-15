@@ -15,7 +15,7 @@ class ContractDTO(BaseDTO):
     Data Transfer Object (DTO) для представления контракта.
 
     Attributes:
-        pk (Optional[int]): Уникальный идентификатор контракта. Может быть None для новых контрактов.
+        id (Optional[int]): Уникальный идентификатор контракта. Может быть None для новых контрактов.
         name (str): Название контракта.
         product (Product): Продукт, связанный с контрактом.
         file_document (File): Файл документа контракта.
@@ -26,15 +26,15 @@ class ContractDTO(BaseDTO):
         updated_by (Optional[User]): Пользователь, обновивший контракт. Может быть None.
     """
 
-    pk: Optional[int]
     name: str
     product: "Product"
     file_document: File
     start_date: datetime
     end_date: datetime
     cost: float
-    created_by: Optional[User]
-    updated_by: Optional[User]
+    id: Optional[int] = None
+    created_by: Optional[User] = None
+    updated_by: Optional[User] = None
 
 
 @dataclass
@@ -60,9 +60,9 @@ class ContractUpdateDTO(ContractDTO):
     Наследует все атрибуты ContractDTO, но требует указания pk и updated_by.
 
     Attributes:
-        pk (int): Уникальный идентификатор контракта.
+        id (int): Уникальный идентификатор контракта.
         updated_by (User): Пользователь, обновивший контракт.
     """
 
-    pk: int
+    id: int
     updated_by: User
