@@ -3,10 +3,12 @@ import re
 from django.utils.translation import gettext_lazy as _
 
 from django import forms
+
+from core.base import BaseForm
 from .models import Product
 
 
-class ProductCreateForm(forms.ModelForm):
+class ProductCreateForm(BaseForm):
     """Форма для создания услуг."""
 
     class Meta:

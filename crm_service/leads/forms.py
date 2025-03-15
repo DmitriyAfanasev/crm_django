@@ -1,9 +1,11 @@
 from django.utils.translation import gettext_lazy as _
 from django import forms
+
+from core.base import BaseForm
 from .models import Lead
 
 
-class LeadForm(forms.ModelForm):
+class LeadForm(BaseForm):
     """Форма для создания лида или обновления информации о нём."""
 
     class Meta:

@@ -1,9 +1,11 @@
 from django import forms
 from django.apps import apps
+
+from core.base import BaseForm
 from .models import Customer
 
 
-class CustomerForm(forms.ModelForm):
+class CustomerForm(BaseForm):
     """Форма для перевода лида в активного клиента."""
 
     class Meta:

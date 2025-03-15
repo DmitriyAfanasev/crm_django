@@ -1,15 +1,12 @@
-from typing import TYPE_CHECKING
-
-from django.utils.translation import gettext_lazy as _
 from django import forms
+from django.core.exceptions import ValidationError
+from core.base import BaseForm
 
 from .models import AdsCompany
-
-if TYPE_CHECKING:
-    from service_product.models import Product
+from .services import AdsCompanyService
 
 
-class AdsCompanyCreateForm(forms.ModelForm):
+class AdsCompanyForm(BaseForm):
     """Форма для создания рекламной компании."""
 
     class Meta:
@@ -33,35 +30,18 @@ class AdsCompanyCreateForm(forms.ModelForm):
             "channel": forms.Select(attrs={"class": "form-control"}),
         }
 
-    def clean_name(self) -> str:
-        """Проверяет, что имя рекламной компании не короче 3 символов."""
-        name: str = self.cleaned_data["name"]
-        if len(name) < 3:
-            raise forms.ValidationError(_("Name must be at least 3 characters long."))
-        return name
-
-    def clean_budget(self) -> float:
-        """Проверяет, что бюджет не меньше стоимости услуги."""
-        budget: float = self.cleaned_data["budget"]
-        product: Product = self.cleaned_data["product"]
-        if budget < product.cost:
-            raise forms.ValidationError(
-                _("The budget cannot be less than the product cost.")
+    def clean(self) -> dict:
+        """Проверяет данные формы и передаёт их в сервис для валидации."""
+        cleaned_data = super().clean()
+        try:
+            AdsCompanyService.validate_name(cleaned_data.get("name"))
+            AdsCompanyService.validate_budget(
+                cleaned_data.get("budget"), cleaned_data.get("product").cost
             )
-        return budget
-
-    def clean_country(self) -> str:
-        """Проверяет, что страна указана."""
-        country: str = self.cleaned_data["country"]
-        if country is None:
-            raise forms.ValidationError(_("Country must be provided."))
-        return country
-
-    def clean_website(self) -> str:
-        """Проверяет, что веб-сайт начинается с HTTPS."""
-        website: str = self.cleaned_data["website"]
-        if website.startswith("http://"):
-            raise forms.ValidationError(_("Website must be secure (use HTTPS)."))
-        if not website.startswith("https://"):
-            website = f"https://{website}"
-        return website
+            AdsCompanyService.validate_country(cleaned_data.get("country"))
+            cleaned_data["website"] = AdsCompanyService.validate_website(
+                cleaned_data.get("website")
+            )
+        except ValidationError as error:
+            self.add_error(None, str(error))
+        return cleaned_data

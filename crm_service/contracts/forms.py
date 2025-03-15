@@ -6,15 +6,11 @@ from django import forms
 
 from .models import Contract
 from .services import ContractService
+from core.base import BaseForm
 
 
-class ContractForm(forms.ModelForm):
+class ContractForm(BaseForm):
     """Форма для создания и редактирования контракта."""
-
-    def __init__(self, *args, user=None, **kwargs) -> None:
-        """Добавление user'a в форму."""
-        super().__init__(*args, **kwargs)
-        self.user = user
 
     class Meta:
         model = Contract
