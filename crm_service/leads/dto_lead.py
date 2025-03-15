@@ -1,12 +1,11 @@
 from dataclasses import dataclass
-
+from django.contrib.auth.models import User
 from typing import Optional, TYPE_CHECKING
 
 from core.base import BaseDTO
 
 if TYPE_CHECKING:
     from ads.models import AdsCompany
-    from django.contrib.auth.models import User
 
 
 @dataclass
@@ -15,7 +14,7 @@ class BaseLeadDTO(BaseDTO):
     Data Transfer Object (DTO) для представления базовой информации о лиде.
 
     Attributes:
-        pk (Optional[int]): Уникальный идентификатор лида. Может быть None для новых лидов.
+        id (Optional[int]): Уникальный идентификатор лида. Может быть None для новых лидов.
         first_name (str): Имя лида.
         middle_name (Optional[str]): Отчество лида. Может быть None.
         last_name (str): Фамилия лида.
@@ -31,7 +30,7 @@ class BaseLeadDTO(BaseDTO):
     email: str
     phone_number: str
     campaign: "AdsCompany"
-    pk: Optional[int] = None
+    id: Optional[int] = None
     middle_name: Optional[str] = None
     created_by: Optional[User] = None
     updated_by: Optional[User] = None
@@ -56,12 +55,19 @@ class LeadUpdateDTO(BaseLeadDTO):
     """
     Data Transfer Object (DTO) для обновления лида.
 
-    Наследует все атрибуты LeadCreateDTO, но требует указания pk и updated_by.
+    Наследует все атрибуты LeadCreateDTO, но требует указания id и updated_by.
 
     Attributes:
-        pk (int): Уникальный идентификатор лида.
+        id (int): Уникальный идентификатор лида.
         updated_by (User): Пользователь, обновивший лид.
     """
 
-    pk: int
+    id: int
     updated_by: User
+
+    def to_dict(self) -> dict:
+        """Преобразует DTO в словарь."""
+        data = super().to_dict()
+        if self.middle_name is None:
+            data["middle_name"] = None
+        return data

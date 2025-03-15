@@ -1,6 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
+from django.http import HttpResponse, HttpRequest
+from django.shortcuts import redirect
 
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -11,8 +14,10 @@ from django.views.generic import (
 )
 
 from core.base import MyDeleteView
+from .dto_lead import LeadCreateDTO, LeadUpdateDTO
 from .models import Lead
 from .forms import LeadForm
+from .services import LeadService
 
 
 class LeadListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -32,15 +37,17 @@ class LeadCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model: Lead = Lead
     form_class: LeadForm = LeadForm
 
-    @transaction.atomic
     def form_valid(self, form: LeadForm) -> HttpResponse:
         """Если форма валидна, то устанавливаем того, кто создал лида, и возвращаем ответ дальше."""
-        form.instance.created_by = self.request.user
-        return super().form_valid(form)
+        user = User.objects.get(id=self.request.user.pk)
+        dto = LeadCreateDTO(**form.cleaned_data, created_by=user)
+        try:
+            lead = LeadService.create_lead(dto)
+        except ValidationError as error:
+            form.add_error(None, str(error))
+            return self.form_invalid(form)
 
-    def get_success_url(self) -> HttpResponseRedirect:
-        """При успешном создании лида перенаправляет на страницу с деталями этого лида."""
-        return reverse_lazy("leads:leads_detail", kwargs={"pk": self.object.pk})
+        return redirect("leads:leads_detail", pk=lead.pk)
 
 
 class LeadDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
@@ -60,15 +67,17 @@ class LeadUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     form_class: LeadForm = LeadForm
     template_name_suffix: str = "_edit"
 
-    @transaction.atomic
     def form_valid(self, form: LeadForm) -> HttpResponse:
         """Если форма валидна, устанавливает того, кто проводит изменение данных."""
-        form.instance.updated_by = self.request.user
-        return super().form_valid(form)
+        user = User.objects.get(id=self.request.user.pk)
+        dto = LeadUpdateDTO(**form.cleaned_data, updated_by=user, id=self.object.pk)
+        try:
+            lead = LeadService.update_lead(dto)
+        except ValidationError as error:
+            form.add_error(None, str(error))
+            return self.form_invalid(form)
 
-    def get_success_url(self) -> HttpResponseRedirect:
-        """При успешном изменении лида перенаправляет на страницу с деталями этого лида."""
-        return reverse_lazy("leads:leads_detail", kwargs={"pk": self.object.pk})
+        return redirect("leads:leads_detail", pk=lead.pk)
 
 
 class LeadDeleteView(LoginRequiredMixin, PermissionRequiredMixin, MyDeleteView):

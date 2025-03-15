@@ -1,8 +1,14 @@
-from django.utils.translation import gettext_lazy as _
+from typing import TYPE_CHECKING
+from functools import cached_property
 from django import forms
 
 from core.base import BaseForm
 from .models import Lead
+
+
+if TYPE_CHECKING:
+    from ads.models import AdsCompany
+    from .services import LeadService
 
 
 class LeadForm(BaseForm):
@@ -26,40 +32,46 @@ class LeadForm(BaseForm):
             "phone_number": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "placeholder": "+7 (___) ___-__-__",
+                    "placeholder": "+7 (***) ***-**-**",
                 }
             ),
             "campaign": forms.Select(attrs={"class": "form-control"}),
         }
 
-    @staticmethod
-    def validate_name(name: str, field_name: str) -> str:
-        """Вспомогательный метод для проверки имени или фамилии."""
-        if len(name.split(" ")) > 1:
-            raise forms.ValidationError(
-                _(
-                    f"{field_name} должно состоять из одного слова или быть разделено '-'"
-                )
-            )
-        if len(name) < 2:
-            raise forms.ValidationError(
-                _(f"{field_name} должно содержать как минимум 2 символа")
-            )
-        return name
+    @cached_property
+    def _service(self) -> "LeadService":
+        from .services import LeadService
+
+        return LeadService()
 
     def clean_first_name(self) -> str:
         """Валидация имени."""
         first_name: str = self.cleaned_data.get("first_name")
-        return self.validate_name(first_name, "Имя")
+        return self._service.validate_name(first_name, "First Name")
 
     def clean_middle_name(self) -> str:
         """Валидация отчества."""
         middle_name: str = self.cleaned_data.get("middle_name", "")
         if middle_name:
-            return self.validate_name(middle_name, "Отчество")
+            return self._service.validate_name(middle_name, "Middle Name")
         return middle_name
 
     def clean_last_name(self) -> str:
         """Валидация фамилии."""
         last_name: str = self.cleaned_data.get("last_name")
-        return self.validate_name(last_name, "Фамилия")
+        return self._service.validate_name(last_name, "Last Name")
+
+    def clean_email(self) -> str:
+        """Валидация электронной почты."""
+        email: str = self.cleaned_data.get("email")
+        return self._service.validate_email(email)
+
+    def clean_phone_number(self) -> str:
+        """Валидация номера телефона."""
+        phone_number: str = self.cleaned_data.get("phone_number")
+        return self._service.validate_phone_number(phone_number)
+
+    def clean_campaign(self) -> "AdsCompany":
+        """Валидация рекламной компании."""
+        campaign = self.cleaned_data.get("campaign")
+        return self._service.validate_campaign(campaign)

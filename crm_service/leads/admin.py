@@ -18,11 +18,10 @@ class LeadAdmin(admin.ModelAdmin):
         "phone_number",
         "email",
         "campaign",
-        "is_active",
     )
 
     search_fields: tuple = ("first_name", "last_name", "email", "phone_number")
-    list_filter: tuple = ("is_active", "campaign")
+    list_filter: tuple = ("campaign",)
     ordering: tuple = ("last_name", "first_name")
 
     def full_name(self, obj: Lead) -> str:
