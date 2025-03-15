@@ -1,10 +1,15 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 
 from core.base import MyDeleteView
+from .dto_contracts import ContractCreateDTO, ContractUpdateDTO
+from .services import ContractService
 from .forms import ContractForm
 from .models import Contract
 
@@ -27,10 +32,16 @@ class ContractCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
     form_class: ContractForm = ContractForm
     success_url: str = reverse_lazy("contracts:contract_list")
 
-    @transaction.atomic
     def form_valid(self, form: ContractForm) -> HttpResponse:
         """Обрабатывает валидную форму."""
-        return super().form_valid(form)
+        user = User.objects.get(id=self.request.user.pk)
+        try:
+            dto = ContractCreateDTO(**form.cleaned_data, created_by=user)
+            contract = ContractService.create_contract(dto)
+            return redirect("contracts:contract_detail", pk=contract.pk)
+        except ValidationError as e:
+            form.add_error(None, str(e))
+            return self.form_invalid(form)
 
 
 class ContractDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
@@ -50,14 +61,22 @@ class ContractUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
     form_class: ContractForm = ContractForm
     template_name_suffix: str = "_edit"
 
-    def get_success_url(self) -> str:
-        """Возвращает URL для перенаправления после успешного редактирования."""
-        return reverse_lazy("contracts:contract_detail", kwargs={"pk": self.object.pk})
+    def get_form_kwargs(self) -> dict:
+        """Добавление пользователя в kwargs формы."""
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
-    @transaction.atomic
     def form_valid(self, form: ContractForm) -> HttpResponse:
         """Обрабатывает форму на корректность данных."""
-        return super().form_valid(form)
+        form.cleaned_data["updated_by"] = self.request.user
+        try:
+            dto = ContractUpdateDTO(**form.cleaned_data, id=self.object.pk)
+            contract = ContractService.update_contract(dto)
+            return redirect("contracts:contract_detail", pk=contract.pk)
+        except ValidationError as e:
+            form.add_error(None, str(e))
+            return self.form_invalid(form)
 
 
 class ContractDeleteView(LoginRequiredMixin, PermissionRequiredMixin, MyDeleteView):
