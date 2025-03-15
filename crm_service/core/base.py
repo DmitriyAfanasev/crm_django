@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 from typing import Protocol, Optional
 
+from django import forms
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.http import Http404
 from django.views.generic import DeleteView
@@ -70,7 +72,7 @@ class BaseService(ServiceProtocol):
             ValueError(message) если такая запись существует
         """
         if model.objects.filter(name=name).exists():
-            raise ValueError(message)
+            raise ValidationError(message)
 
 
 @dataclass
@@ -80,6 +82,12 @@ class BaseDTO:
     def to_dict(self) -> dict[str, Optional[str]]:
         """Преобразует все атрибуты класса в словарь."""
         return {key: value for key, value in self.__dict__.items() if value is not None}
+
+
+class BaseForm(forms.ModelForm):
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
 
 
 class MyDeleteView(DeleteView):
