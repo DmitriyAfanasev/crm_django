@@ -13,7 +13,7 @@ class AdsCompanyDTO(BaseDTO):
     Data Transfer Object (DTO) для представления рекламной компании.
 
     Атрибуты:
-        pk (Optional[int]): Уникальный идентификатор рекламной компании. Может быть None для новых компаний.
+        id (Optional[int]): Уникальный идентификатор рекламной компании. Может быть None для новых компаний.
         name (str): Название рекламной компании.
         product (Product): Продукт, связанный с рекламной компанией.
         channel (str): Канал, через который осуществляется реклама.
@@ -32,9 +32,9 @@ class AdsCompanyDTO(BaseDTO):
     country: str
     email: str
     website: str
-    created_by: Optional[User]
+    created_by: Optional[User] = None
     updated_by: Optional[User] = None
-    pk: Optional[int] = None
+    id: Optional[int] = None
 
 
 @dataclass
@@ -56,12 +56,12 @@ class AdsCompanyUpdateDTO(AdsCompanyDTO):
     """
     Data Transfer Object (DTO) для обновления рекламной компании.
 
-    Наследует все атрибуты AdsCompanyDTO, но требует указания pk и updated_by.
+    Наследует все атрибуты AdsCompanyDTO, но требует указания id и updated_by.
 
     Атрибуты:
-        pk (int): Уникальный идентификатор рекламной компании.
+        id (int): Уникальный идентификатор рекламной компании.
         updated_by (User): Пользователь, обновивший рекламную компанию.
     """
 
-    pk: int
+    id: int
     updated_by: User
