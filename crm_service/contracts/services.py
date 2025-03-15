@@ -46,6 +46,7 @@ class ContractService(UserRoleService):
             with transaction.atomic():
                 Contract.objects.filter(id=dto.id).update(**dto.to_dict())
                 contract = Contract.objects.get(id=dto.id)
+                contract.save()
                 contract.refresh_from_db()
         except DatabaseError as error:
             logger.error(f"Database error occurred: {error}")
