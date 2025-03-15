@@ -79,7 +79,7 @@ class BaseDTO:
 
     def to_dict(self) -> dict[str, Optional[str]]:
         """Преобразует все атрибуты класса в словарь."""
-        return {key: value for key, value in self.__dict__.items()}
+        return {key: value for key, value in self.__dict__.items() if value is not None}
 
 
 class MyDeleteView(DeleteView):
