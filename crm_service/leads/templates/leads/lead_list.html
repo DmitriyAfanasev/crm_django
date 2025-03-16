@@ -5,7 +5,9 @@
 <h2 class="fw-bold">Лиды</h2>
 <div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
     <div class="hstack gap-3 pb-4">
+        {% if perms.leads.add_lead %}
         <a href="/leads/new" class="btn btn-success p-2">Создать</a>
+        {% endif %}
     </div>
     <div class="col">
         <ul class="list-group">
@@ -13,16 +15,19 @@
             <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">
                 <a href="/leads/{{ lead.pk }}" class="text-decoration-none link-dark">{{ lead.last_name }} {{ lead.first_name }}</a>
                 <div>
-                {% if perms.customers.view_customer %}
-                    {% if lead.customer %}
-                        <a href="/customers/{{ lead.customer.pk }}" class="btn btn-secondary me-2">к странице клиента</a>
-                    {% else %}
-                        <a href="{% url 'customers:customers_create' %}?lead_id={{ lead.pk }}" class="btn btn-primary me-2">
-                            Перевести в активного
-                        </a>
-                    {% endif %}
+
+                {% if perms.customers.view_customer and lead.customer%}
+                    <a href="/customers/{{ lead.customer.pk }}" class="btn btn-secondary me-2">к странице клиента</a>
                 {% endif %}
+
+                {% if perms.customers.add_customer and not lead.customer%}
+                    <a href="{% url 'customers:customers_create' %}?lead_id={{ lead.pk }}" class="btn btn-primary me-2">
+                        Перевести в активного</a>
+                {% endif %}
+
+                {% if perm.leads.delete_lead %}
                     <a href="/leads/{{ lead.pk }}/delete" class="btn btn-danger">Удалить</a>
+                {% endif %}
                 </div>
             </li>
             {% endfor %}
