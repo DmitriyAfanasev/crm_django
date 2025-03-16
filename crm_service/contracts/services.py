@@ -50,7 +50,7 @@ class ContractService(UserRoleService):
                 contract.save()
                 contract.refresh_from_db()
         except DatabaseError as error:
-            logger.error(f"Database error occurred: %s", error)
+            logger.error("Database error occurred: %s", error)
             raise ValidationError(
                 _("An error occurred while updating the contract.")
             ) from error

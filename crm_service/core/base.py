@@ -18,7 +18,6 @@ logger = logging.getLogger("services")
 class ServiceProtocol(Protocol):
     """Класс задаёт интерфейсы для различных сервисов."""
 
-
     @staticmethod
     def _check_permissions_user(user: User) -> None:
         """
@@ -107,6 +106,7 @@ class MyDeleteView(DeleteView):
             return self.success_url
         else:
             raise Http404(
-                "success_url  не был указан. Не понятно куда перенаправлять пользователя после удаления. "
+                "success_url  не был указан. "
+                "Не понятно куда перенаправлять пользователя после удаления. "
                 "Укажите, например, страницу со списком этого же объекта"
             )

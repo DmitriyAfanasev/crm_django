@@ -20,13 +20,13 @@ class UserRoleService(BaseService):
         "CustomerService": "manager",
     }
 
-    @staticmethod
-    def _check_user_role(user: User, service_name: str) -> None:
+    @classmethod
+    def _check_user_role(cls, user: User, service_name: str) -> None:
         """
         Проверяет, имеет ли пользователь одну из требуемых ролей,
         или является он администратором сервиса.
         """
-        required_role = UserRoleService.roles.get(service_name)
+        required_role = cls.roles.get(service_name)
         if required_role is None:
             raise ValueError(_("No role defined for this service."))
 
