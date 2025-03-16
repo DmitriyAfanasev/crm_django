@@ -11,13 +11,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs) -> None:
         groups = {
-            "Operator": [
+            "operator": [
                 "add_lead",
                 "change_lead",
-                "delete_lead",
                 "view_lead",
+                "delete_lead",
             ],
-            "Marketer": [
+            "marketer": [
                 "add_product",
                 "change_product",
                 "delete_product",
@@ -27,15 +27,12 @@ class Command(BaseCommand):
                 "delete_adscompany",
                 "view_adscompany",
             ],
-            "Manager": [
+            "manager": [
                 "add_contract",
                 "change_contract",
                 "delete_contract",
                 "view_contract",
                 "add_customer",
-                "change_customer",
-                "delete_customer",
-                "view_customer",
                 "view_lead",
             ],
         }
