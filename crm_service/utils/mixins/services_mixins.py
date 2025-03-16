@@ -7,6 +7,8 @@ from exception.exc import ForbiddenWordException
 
 
 class BadWordsMixin:
+    """Класс для проверки полей django форм на запрещённые слова-триггеры."""
+
     @staticmethod
     def _load_bad_words() -> set[str]:
         """Загружает список запрещенных слов из файла."""
@@ -29,7 +31,8 @@ class BadWordsMixin:
     def _check_field_for_bad_words(
         field_name: str, text: str, bad_words: set[str]
     ) -> None:
-        """Проверяет поле на наличие запрещенных слов и генерирует исключение с соответствующим сообщением."""
+        """Проверяет поле на наличие запрещенных слов
+        и генерирует исключение с соответствующим сообщением."""
         if BadWordsMixin._check_for_bad_words(text, bad_words):
             raise ForbiddenWordException(field_name)
 

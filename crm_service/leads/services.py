@@ -14,11 +14,17 @@ if TYPE_CHECKING:
 
 
 class LeadService(UserRoleService):
+    """Сервис для работы с Лидами.
+
+    Обеспечивает бизнес-логику создания и обновления лидов,
+    включая проверку прав доступа и валидацию данных.
+    """
+
     @classmethod
     def create_lead(cls, dto: LeadCreateDTO) -> Lead:
         """Создание лида."""
         cls._validate_lead_data(dto)
-        cls._check_role(user=dto.created_by)
+        cls._check_permissions_user(user=dto.created_by)
 
         with transaction.atomic():
             lead = Lead.objects.create(**dto.to_dict())
@@ -30,7 +36,7 @@ class LeadService(UserRoleService):
     def update_lead(cls, dto: LeadUpdateDTO) -> Lead:
         """Обновление лида."""
         cls._validate_lead_data(dto)
-        cls._check_role(user=dto.updated_by)
+        cls._check_permissions_user(user=dto.updated_by)
 
         with transaction.atomic():
             Lead.objects.filter(id=dto.id).update(**dto.to_dict())
@@ -40,7 +46,7 @@ class LeadService(UserRoleService):
         return lead
 
     @classmethod
-    def _check_role(cls, user: "User") -> None:
+    def _check_permissions_user(cls, user: "User") -> None:
         """Проверка перед созданием лида."""
         service_name = cls._get_service_name()
         cls._check_user_role(service_name=service_name, user=user)

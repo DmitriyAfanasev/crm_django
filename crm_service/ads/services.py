@@ -1,10 +1,11 @@
+from typing import TYPE_CHECKING
+
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Sum
 from django.utils.translation import gettext_lazy as _
 
-from typing import TYPE_CHECKING
 import requests
 from requests import Response
 
@@ -19,6 +20,12 @@ if TYPE_CHECKING:
 
 
 class AdsCompanyService(BadWordsMixin, UserRoleService):
+    """Сервис для работы с рекламными компаниями.
+
+    Обеспечивает бизнес-логику создания и обновления компаний,
+    включая проверку прав доступа и валидацию данных.
+    """
+
     @classmethod
     def create_company(cls, dto: AdsCompanyCreateDTO) -> AdsCompany:
         """Создает рекламную компанию."""
@@ -85,7 +92,7 @@ class AdsCompanyService(BadWordsMixin, UserRoleService):
         cls._check_existing_name(dto.name)
         cls._check_for_bad_words(dto)
         cls._check_worked_website(dto.website)
-        cls._check_user_role_for_creation(dto.created_by)
+        cls._check_permissions_user(dto.created_by)
 
     @classmethod
     def _checking_before_update(cls, dto: AdsCompanyUpdateDTO) -> None:
@@ -113,7 +120,7 @@ class AdsCompanyService(BadWordsMixin, UserRoleService):
         cls._check_field_for_bad_words("website", dto.website, bad_words)
 
     @classmethod
-    def _check_user_role_for_creation(cls, user) -> None:
+    def _check_permissions_user(cls, user) -> None:
         """Проверяет роль пользователя."""
         service_name = cls._get_service_name()
         cls._check_user_role(user=user, service_name=service_name)
@@ -126,9 +133,9 @@ class AdsCompanyService(BadWordsMixin, UserRoleService):
             response.raise_for_status()
             return True
         except requests.exceptions.HTTPError as e:
-            raise ValidationError(_(f"The site returned an error: {e}"))
+            raise ValidationError(_(f"The site returned an error: {e}")) from e
         except requests.exceptions.RequestException as e:
-            raise ValidationError(_(f"The site is unavailable: {e}"))
+            raise ValidationError(_(f"The site is unavailable: {e}")) from e
 
     @staticmethod
     def get_leads_count(company: AdsCompany) -> int:

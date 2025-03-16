@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Protocol, Optional
+import logging
 
 from django import forms
 from django.contrib.auth.models import User
@@ -9,7 +10,6 @@ from django.db import models
 from django.http import Http404
 from django.views.generic import DeleteView
 
-import logging
 
 logger = logging.getLogger("services")
 
@@ -46,6 +46,8 @@ class ServiceProtocol(Protocol):
 
 @dataclass
 class BaseService(ServiceProtocol):
+    """Базовый класс для всех сервисов"""
+
     @classmethod
     def _get_service_name(cls) -> str:
         """
@@ -85,6 +87,11 @@ class BaseDTO:
 
 
 class BaseForm(forms.ModelForm):
+    """
+    Базовый класс для всех форм django.
+    Автоматически подгружает пользователя работающего с формой.
+    """
+
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
@@ -100,11 +107,13 @@ class MyDeleteView(DeleteView):
         """
         messages.success(self.request, f"{self.object.name!r} успешно удаленно.")
         if self.success_url:
+            class_name = self.object.__class__.__name__
             logger.info(
-                f"{self.object.__class__.__name__} {self.object.name!r} удалён пользователем {self.request.user}."
+                f"{class_name} {self.object.name!r} удалён пользователем {self.request.user}."
             )
             return self.success_url
         else:
             raise Http404(
-                "success_url  не был указан. Не понятно куда перенаправлять пользователя после удаления. Укажите, например, страницу со списком этого же объекта"
+                "success_url  не был указан. Не понятно куда перенаправлять пользователя после удаления. "
+                "Укажите, например, страницу со списком этого же объекта"
             )

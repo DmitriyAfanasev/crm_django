@@ -19,9 +19,9 @@ class CustomerForm(BaseForm):
     def __init__(self, *args, **kwargs) -> None:
         """Инициализация формы."""
         super().__init__(*args, **kwargs)
-        Lead = apps.get_model("leads", "Lead")
+        lead: type["Lead"] = apps.get_model("leads", "Lead")
 
-        leads = Lead.objects.filter(customer__isnull=True)
+        leads = lead.objects.filter(customer__isnull=True)
         if not leads.exists():
             self.fields["lead"].help_text = "Нет доступных лидов для создания клиента."
 

@@ -1,4 +1,5 @@
 import datetime
+import logging
 from decimal import Decimal
 
 from django.utils.translation import gettext_lazy as _
@@ -7,11 +8,11 @@ from django.core.files import File
 from django.contrib.auth.models import User
 from django.db import transaction, DatabaseError
 
-from .models import Contract
 from core.check_user_service import UserRoleService
+
+from .models import Contract
 from .dto_contracts import ContractCreateDTO, ContractUpdateDTO
 
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,9 @@ class ContractService(UserRoleService):
     @classmethod
     def create_contract(cls, dto: ContractCreateDTO) -> Contract:
         """Создание контракта"""
-        cls._checking_before_creation(dto)
+        cls.validate_dates(dto.start_date, dto.end_date)
+        cls.validate_file(dto.file_document)
+        cls._check_permissions_user(user=dto.created_by)
         with transaction.atomic():
             contract: Contract = Contract.objects.create(**dto.to_dict())
             contract.save()
@@ -36,9 +39,7 @@ class ContractService(UserRoleService):
     @classmethod
     def update_contract(cls, dto: ContractUpdateDTO) -> Contract:
         """Обновление данных в контракте."""
-        service_name: str = cls._get_service_name()
-        user: User = dto.updated_by
-        cls._check_user_role(user, service_name)
+        cls._check_permissions_user(user=dto.updated_by)
         cls.validate_dates(dto.start_date, dto.end_date)
         cls.validate_file(dto.file_document)
 
@@ -49,16 +50,17 @@ class ContractService(UserRoleService):
                 contract.save()
                 contract.refresh_from_db()
         except DatabaseError as error:
-            logger.error(f"Database error occurred: {error}")
-            raise ValidationError(_("An error occurred while updating the contract."))
+            logger.error(f"Database error occurred: %s", error)
+            raise ValidationError(
+                _("An error occurred while updating the contract.")
+            ) from error
 
         return contract
 
     @classmethod
-    def _checking_before_creation(cls, dto: ContractCreateDTO) -> None:
+    def _check_permissions_user(cls, user: User) -> None:
         """Проверка прав пользователя перед созданием контракта."""
         service_name: str = cls._get_service_name()
-        user: User = dto.created_by
         cls._check_user_role(user, service_name)
 
     @classmethod

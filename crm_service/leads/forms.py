@@ -40,6 +40,7 @@ class LeadForm(BaseForm):
 
     @cached_property
     def _service(self) -> "LeadService":
+        """Мягкий импорт класса-сервиса для обработки бизнес-логики."""
         from .services import LeadService
 
         return LeadService()

@@ -11,9 +11,7 @@ def create_directory_path_for_documents_customer(
     instance: "Contract", filename: str
 ) -> str:
     """Создаётся путь к каталогу, в котором будут храниться документы."""
-    return "documents/{agreement}-{date}/{filename}".format(
-        agreement=instance.name, date=instance.start_date, filename=filename
-    )
+    return f"documents/{instance.name}-{instance.start_date}/{filename}"
 
 
 class Contract(TimestampMixin, ActorMixin):

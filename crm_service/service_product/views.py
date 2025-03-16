@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User
 from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     PermissionRequiredMixin,
@@ -8,7 +8,7 @@ from django.db import transaction
 from django.db.models import QuerySet
 
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -51,7 +51,8 @@ class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
 
     def form_valid(self, form: ProductCreateForm) -> HttpResponse:
         """
-        Устанавливаем пользователя, создавшего услугу и делаем проверки различного уровня и создаём запись в бд.
+        Устанавливаем пользователя, создавшего услугу и делаем проверки различного уровня
+         и создаём запись в базе данных.
         """
 
         user = User.objects.get(id=self.request.user.pk)

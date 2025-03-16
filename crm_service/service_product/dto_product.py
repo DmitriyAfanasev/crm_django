@@ -1,7 +1,8 @@
-from django.contrib.auth.models import User
-from core.base import BaseDTO
 from dataclasses import dataclass
 from typing import Optional
+
+from django.contrib.auth.models import User
+from core.base import BaseDTO
 
 
 @dataclass
