@@ -30,7 +30,7 @@ class CustomerListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class CustomerCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Представления для перевода лида в активного клиента."""
 
-    permission_required: str = "customers.view_customer"
+    permission_required: str = "customers.add_customer"
     model: Customer = Customer
     form_class: CustomerForm = CustomerForm
 
