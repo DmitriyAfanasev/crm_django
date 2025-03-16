@@ -4,80 +4,91 @@ from django.contrib.contenttypes.models import ContentType
 from service_product.models import Product
 
 
-# TODO доделать команды для создания ролей. И возможно перенести из accounts в более логичное приложение.
 class Command(BaseCommand):
+    """Создаёт роли и назначает разрешения."""
+
     help = "Создаёт роли и назначает разрешения"
 
-    def handle(self, *args, **kwargs):
-        # Создаём группы
+    def handle(self, *args, **kwargs) -> None:
         groups = {
-            "Administrator": [
-                "add_user",
-                "change_user",
-                "delete_user",
-                "add_group",
-                "change_group",
-                "delete_group",
+            "operator": [
+                "add_lead",
+                "change_lead",
+                "view_lead",
+                "delete_lead",
             ],
-            "Operator": [
-                "add_client",
-                "change_client",
-                "delete_client",
-            ],
-            "Marketer": [
+            "marketer": [
                 "add_product",
                 "change_product",
                 "delete_product",
-                "add_campaign",
-                "change_campaign",
-                "delete_campaign",
+                "view_product",
+                "add_adscompany",
+                "change_adscompany",
+                "delete_adscompany",
+                "view_adscompany",
             ],
-            "Manager": [
+            "manager": [
                 "add_contract",
                 "change_contract",
                 "delete_contract",
-                "change_client",
+                "view_contract",
+                "add_customer",
+                "view_lead",
             ],
+        }
+
+        model_to_app_label = {
+            "lead": ("leads", "lead"),
+            "product": ("service_product", "product"),
+            "adscompany": ("ads", "adscompany"),
+            "contract": ("contracts", "contract"),
+            "customer": ("customers", "customer"),
         }
 
         for group_name, permissions in groups.items():
             group, created = Group.objects.get_or_create(name=group_name)
-            if created:
-                self.stdout.write(self.style.SUCCESS(f'Группа "{group_name}" создана'))
-            else:
-                self.stdout.write(
-                    self.style.WARNING(f'Группа "{group_name}" уже существует')
+            self.stdout.write(
+                self.style.WARNING(
+                    f'Группа "{group_name}" {"создана" if created else "уже существует"}'
                 )
+            )
 
             for perm in permissions:
-                try:
-                    app_label, codename = perm.split("_", 1)
-                    content_type = ContentType.objects.get(app_label=app_label)
-                    permission = Permission.objects.get(
-                        content_type=content_type, codename=codename
-                    )
-                    group.permissions.add(permission)
-                except (ContentType.DoesNotExist, Permission.DoesNotExist):
-                    self.stdout.write(
-                        self.style.ERROR(f'Разрешение "{perm}" не найдено')
-                    )
+                self.add_permission_to_group(perm, group, model_to_app_label)
 
             self.stdout.write(
                 self.style.SUCCESS(f'Разрешения для группы "{group_name}" назначены')
             )
 
-        # Общее разрешение для просмотра статистики
+        self.add_view_statistics_permission()
+
+    def add_permission_to_group(self, perm, group, model_to_app_label):
+        """Добавляет указанные права доступа указанной группе."""
+        try:
+            action, model_name = perm.split("_", 1)
+            app_label, model = model_to_app_label.get(model_name, (None, None))
+            if not app_label or not model:
+                raise ValueError(f"Неправильное имя модели: {model_name}")
+
+            content_type = ContentType.objects.get(app_label=app_label, model=model)
+            permission = Permission.objects.get(
+                content_type=content_type, codename=perm
+            )
+            group.permissions.add(permission)
+        except (ContentType.DoesNotExist, Permission.DoesNotExist, ValueError) as e:
+            self.stdout.write(
+                self.style.ERROR(f"Ошибка при добавлении разрешения '{perm}': {e}")
+            )
+
+    @staticmethod
+    def add_view_statistics_permission():
+        """Добавляет право просмотра статистики всем группам."""
         can_view_statistics, _ = Permission.objects.get_or_create(
             codename="can_view_statistics",
             name="Can view statistics",
-            content_type=ContentType.objects.get_for_model(
-                Product
-            ),  # Модель для привязки разрешения
+            content_type=ContentType.objects.get_for_model(Product),
         )
+
         for group in Group.objects.all():
-            group.permissions.add(can_view_statistics)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f'Разрешение "can_view_statistics" добавлено для группы "{group.name}"'
-                )
-            )
+            if can_view_statistics in group.permissions.all():
+                group.permissions.add(can_view_statistics)

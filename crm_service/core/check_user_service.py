@@ -14,10 +14,20 @@ class UserActiveService(BaseService):
 
 
 class UserRoleService(UserActiveService):
-    """Сервис для проверки ролей пользователей."""
+    """
+    Сервис для проверки ролей пользователей.
 
-    # TODO добавить остальные роли, когда добавлю классы Operator , Manager
-    roles = {"AdsCompanyService": "marketer", "ProductService": "marketer"}
+    Атрибуты:
+        roles (dict): Словарь, связывающий сервисы с требуемыми ролями.
+    """
+
+    roles = {
+        "AdsCompanyService": "marketer",
+        "ProductService": "marketer",
+        "LeadService": "operator",
+        "ContractService": "manager",
+        "CustomerService": "manager",
+    }
 
     @staticmethod
     def _check_user_role(user: User, service_name: str) -> None:
@@ -25,7 +35,6 @@ class UserRoleService(UserActiveService):
         Проверяет, имеет ли пользователь одну из требуемых ролей,
         или является он администратором сервиса.
         """
-
         required_role = UserRoleService.roles.get(service_name)
         if required_role is None:
             raise ValueError(_("No role defined for this service."))

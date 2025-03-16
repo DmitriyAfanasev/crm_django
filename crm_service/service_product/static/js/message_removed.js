@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log("Transition ended, hiding message");
                 messages.style.display = 'none';
             }, {once: true});
-        }, 3000);
+        }, 2000);
     } else {
         console.log("No message element found");
     }

@@ -1,79 +1,105 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect, HttpResponse
+from django.core.exceptions import ValidationError
+from django.http import HttpResponse, HttpRequest
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView,
     CreateView,
     UpdateView,
     DetailView,
-    DeleteView,
-    TemplateView,
 )
+from django.db import transaction
 
-from .dto_ads_company import AdsCompanyCreateDTO
+from core.base import MyDeleteView
+from .dto_ads_company import AdsCompanyCreateDTO, AdsCompanyUpdateDTO
 from .models import AdsCompany
-from .forms import AdsCompanyCreateForm
+from .forms import AdsCompanyForm
 from .services import AdsCompanyService
 
 
-# TODO добавить пермишены
-class AdsCompanyListView(ListView):
+class AdsCompanyListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """Представление для списка всех рекламных компаний в системе."""
 
+    permission_required: str = "ads.view_adscompany"
     model: AdsCompany = AdsCompany
     context_object_name: str = "ads"
+    paginate_by: int = 10
+    ordering: tuple[str,] = ("budget",)
 
 
-class AdsCompanyCreateView(PermissionRequiredMixin, CreateView):
+class AdsCompanyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Представление для маркетологов и всех у кого есть право на создание рекламных компаний."""
 
-    model = AdsCompany
-    form_class = AdsCompanyCreateForm
-    permission_required = "ads.add_adscompany"
+    permission_required: str = "ads.add_adscompany"
+    model: AdsCompany = AdsCompany
+    form_class: AdsCompanyForm = AdsCompanyForm
 
-    def get_success_url(self) -> HttpResponseRedirect:
-        """При успешном создании компании, перенаправляет на страницу с детальной информации о компании."""
-        return reverse_lazy("ads:ads_detail", kwargs={"pk": self.object.pk})
-
-    def form_valid(self, form: AdsCompanyCreateForm) -> HttpResponse:
-        form.instance.created_by = User.objects.get(id=self.request.user.pk)
-
+    def form_valid(self, form: AdsCompanyForm) -> HttpResponse:
+        """Проверка корректности данных из формы, а так же добавляет информацию
+        о пользователе, который создаёт новую рекламную компанию."""
+        user = User.objects.get(id=self.request.user.pk)
         ads_company_dto = AdsCompanyCreateDTO(
             **form.cleaned_data,
-            created_by=form.instance.created_by.pk,
+            created_by=user,
         )
         try:
-            AdsCompanyService.checking_before_creation(ads_company_dto)
-        except ValueError as error:
+            company = AdsCompanyService.create_company(dto=ads_company_dto)
+        except ValidationError as error:
             form.add_error(None, str(error))
             return self.form_invalid(form)
-        return super().form_valid(form)
+
+        return redirect("ads:ads_detail", pk=company.pk)
 
 
-class AdsCompanyDetailView(DetailView):
+class AdsCompanyDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    """Представление для детального просмотра рекламной компании."""
+
+    permission_required: str = "ads.view_adscompany"
     model: AdsCompany = AdsCompany
     context_object_name: str = "company"
 
 
-class AdsCompanyUpdateView(UpdateView):
+class AdsCompanyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """Представление для редактирования рекламной компании."""
+
+    permission_required: str = "ads.change_adscompany"
     model: AdsCompany = AdsCompany
-    form_class: AdsCompanyCreateForm = AdsCompanyCreateForm
-    template_name_suffix = "-edit"
+    form_class: AdsCompanyForm = AdsCompanyForm
+    template_name_suffix: str = "-edit"
 
-    def get_success_url(self) -> HttpResponseRedirect:
-        """При успешном создании услуги, перенаправляет на страницу с деталями этой услуги."""
-        return reverse_lazy("ads:ads_detail", kwargs={"pk": self.object.pk})
+    def form_valid(self, form: AdsCompanyForm) -> HttpResponse:
+        """Обрабатывает валидную форму и сохраняет изменения."""
+        user = User.objects.get(id=self.request.user.pk)
+        ads_company_dto = AdsCompanyUpdateDTO(
+            **form.cleaned_data, updated_by=user, id=self.object.pk
+        )
+        try:
+            company = AdsCompanyService.update_company(dto=ads_company_dto)
+        except ValidationError as error:
+            form.add_error(None, str(error))
+            return self.form_invalid(form)
+
+        return redirect("ads:ads_detail", pk=company.pk)
 
 
-class AdsCompanyDeleteView(DeleteView):
+class AdsCompanyDeleteView(LoginRequiredMixin, PermissionRequiredMixin, MyDeleteView):
+    """Представление для удаления рекламной компании."""
+
+    permission_required: str = "ads.delete_adscompany"
     model: AdsCompany = AdsCompany
+    success_url = reverse_lazy("ads:ads_list")
 
-    def get_success_url(self) -> HttpResponseRedirect:
-        """При успешном удалении компании, перенаправляет на страницу со списком компаний."""
-        return reverse_lazy("ads:ads_list")
+    @transaction.atomic
+    def delete(self, request: HttpRequest, *args, **kwargs):
+        """Удаляет рекламную компанию и перенаправляет на страницу со списком."""
+        return super().delete(request, *args, **kwargs)
 
 
-# TODO работает шаблон, но не логика которую он должен выводить
-class AdsCompanyStatisticsView(TemplateView):
-    template_name = "ads/adscompany_statistic.html"
+class AdsCompanyStatisticsView(LoginRequiredMixin, ListView):
+    """Представление для статистики рекламных компаний."""
+
+    template_name: str = "ads/adscompany_statistic.html"
+    model: AdsCompany = AdsCompany
+    context_object_name: str = "ads"

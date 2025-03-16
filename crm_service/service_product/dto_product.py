@@ -1,46 +1,55 @@
+from django.contrib.auth.models import User
+from core.base import BaseDTO
 from dataclasses import dataclass
 from typing import Optional
 
 
-# TODO посмотреть как работает библиотека Auto-Dataclass
-#  https://github.com/OleksandrZhydyk/Auto-Dataclass
-
 @dataclass
-class BaseProductDto:
-    def to_dict(self) -> dict[str, Optional[str]]:
-        return {key: value for key, value in self.__dict__.items()}
+class BaseProductDTO(BaseDTO):
+    """
+    Data Transfer Object (DTO) для представления базовой информации об услуге.
 
+    Attributes:
+        id (Optional[int]): id услуги. Может быть None, если ещё не создана.
+        name (str): Название.
+        description (str): Описание.
+        cost (float): Стоимость.
+        discount (int): Скидка на услугу в процентах.
+        status (str): Доступна она или возможно в разработке.
+        archived (bool): Архивирована ли услуга.
+        created_by (Optional[User]): id, создавшего услугу. Может быть None.
+        updated_by (Optional[User]): id, обновившего данные. Может быть None.
+    """
 
-@dataclass
-class ProductDTO(BaseProductDto):
-    pk: int
     name: str
     description: str
     cost: float
     discount: int
     status: str
     archived: bool
-    created_by: int
+    id: Optional[int] = None
+    created_by: Optional[User] = None
+    updated_by: Optional[User] = None
 
 
 @dataclass
-class ProductCreateDTO(BaseProductDto):
-    name: str
-    description: str
-    cost: float
-    discount: int
-    status: str
-    archived: bool
-    created_by: int
+class ProductCreateDTO(BaseProductDTO):
+    """
+    Data Transfer Object (DTO) для создания продукта.
+
+    Наследует все атрибуты BaseProductDTO, но требует указания created_by.
+    """
+
+    created_by: User
 
 
 @dataclass
-class ProductUpdateDTO(BaseProductDto):
-    pk: Optional[int] = None
-    name: Optional[str] = None
-    description: Optional[str] = None
-    cost: Optional[float] = None
-    discount: Optional[int] = None
-    status: Optional[str] = None
-    archived: Optional[bool] = None
-    created_by: Optional[int] = None
+class ProductUpdateDTO(BaseProductDTO):
+    """
+    Data Transfer Object (DTO) для обновления продукта.
+
+    Наследует все атрибуты ProductCreateDTO, но требует указания id и updated_by.
+    """
+
+    id: int
+    updated_by: User

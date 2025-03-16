@@ -40,15 +40,20 @@
                         </p>
                     </div>
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        {% if perms.leads.change_lead %}
                         <a href="/leads/{{ lead.pk }}/edit" class="btn btn-primary me-md-2">
                             <i class="fas fa-edit me-2"></i>Редактировать
                         </a>
+                        {% endif %}
+                        {% if perms.leads.delete_lead %}
                         <a href="/leads/{{ lead.pk }}/delete" class="btn btn-danger me-md-2">
                             <i class="fas fa-trash-alt me-2"></i>Удалить
                         </a>
+                        {% endif %}
                         <a href="/leads" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Назад к списку
                         </a>
+
                     </div>
                 </div>
             </div>

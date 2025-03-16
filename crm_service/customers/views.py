@@ -1,59 +1,97 @@
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView,
     DetailView,
     CreateView,
     UpdateView,
-    DeleteView,
 )
+from django.db import transaction
 
+from core.base import MyDeleteView
+from leads.models import Lead
 from .models import Customer
-from .forms import CustomerCreateForm
+from .forms import CustomerForm
 
 
-# TODO добавить пермишены
-class CustomerListView(ListView):
-    model = Customer
-    context_object_name = "customers"
-    paginate_by = 10
+class CustomerListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    """Представление списка всех активных клиентов."""
+
+    permission_required: str = "customers.view_customer"
+    model: Customer = Customer
+    context_object_name: str = "customers"
+    paginate_by: int = 10
+    ordering: tuple[str,] = ("contract__cost",)
 
 
-class CustomerCreateView(CreateView):
-    model = Customer
-    form_class = CustomerCreateForm
+class CustomerCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """Представления для перевода лида в активного клиента."""
 
-    def form_valid(self, form: CustomerCreateForm) -> HttpResponse:
+    permission_required: str = "customers.add_customer"
+    model: Customer = Customer
+    form_class: CustomerForm = CustomerForm
+
+    def get_initial(self) -> dict[str, Lead | None]:
+        """Предзаполнение поля 'lead' значением из URL."""
+        initial: dict = super().get_initial()
+        lead_id: int | None = self.request.GET.get("lead_id")
+        if lead_id:
+            lead: Lead = get_object_or_404(Lead, pk=lead_id)
+            initial["lead"] = lead
+        return initial
+
+    @transaction.atomic
+    def form_valid(self, form: CustomerForm) -> HttpResponse:
+        """Добавляет информацию о пользователе, который перевёл лида в активного клиента."""
         form.instance.created_by = User.objects.get(pk=self.request.user.pk)
-        # TODO DTO слой добавить
         return super().form_valid(form)
 
     def get_success_url(self) -> HttpResponseRedirect:
+        """Перенаправление на страницу деталей клиента."""
         return reverse_lazy("customers:customers_detail", kwargs={"pk": self.object.pk})
 
 
-class CustomerDetailView(DetailView):
-    model = Customer
-    context_object_name = "customer"
+class CustomerDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    """Представление для детального просмотра клиента."""
+
+    permission_required: str = "customers.view_customer"
+    model: Customer = Customer
+    context_object_name: str = "customer"
 
 
-class CustomerUpdateView(UpdateView):
-    model = Customer
-    context_object_name = "customer"
-    form_class = CustomerCreateForm
-    template_name_suffix = "_edit"
+class CustomerUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """Представление для редактирования клиента."""
 
-    def form_valid(self, form: CustomerCreateForm) -> HttpResponse:
+    permission_required: str = "customers.change_customer"
+    model: Customer = Customer
+    context_object_name: str = "customer"
+    form_class: CustomerForm = CustomerForm
+    template_name_suffix: str = "_edit"
+
+    @transaction.atomic
+    def form_valid(self, form: CustomerForm) -> HttpResponse:
+        """Добавляет информацию о пользователе, обновившего данные активного клиента."""
         response = super().form_valid(form)
         if form.is_valid():
             form.instance.updated_by = User.objects.get(pk=self.request.user.pk)
             return response
 
     def get_success_url(self) -> HttpResponseRedirect:
+        """Перенаправление на страницу деталей клиента."""
         return reverse_lazy("customers:customers_detail", kwargs={"pk": self.object.pk})
 
 
-class CustomerDeleteView(DeleteView):
-    model = Customer
-    success_url = reverse_lazy("customers:customers_list")
+class CustomerDeleteView(LoginRequiredMixin, PermissionRequiredMixin, MyDeleteView):
+    """Представление для удаления клиента."""
+
+    permission_required = "customers.delete_customer"
+    model: Customer = Customer
+    success_url: str = reverse_lazy("customers:customers_list")
+
+    @transaction.atomic
+    def delete(self, request: HttpRequest, *args, **kwargs):
+        """Обрабатывает запрос на удаление клиента."""
+        return super().delete(request, *args, **kwargs)

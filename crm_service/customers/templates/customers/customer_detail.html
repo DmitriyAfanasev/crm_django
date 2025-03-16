@@ -8,7 +8,7 @@
         <div class="card border-dark shadow" style="background: #eee">
             <div class="card-body">
                 <h5 class="card-title fw-bold">{{ customer.lead.last_name }} {{ customer.lead.first_name }}</h5>
-                <p class="card-text">{{ customer.lead.phone }}</p>
+                <p class="d-flex justify-content-end fw-bold">{{ customer.lead.phone_number }}</p>
                 <div class="d-flex justify-content-end fw-bold">{{ object.lead.email }}</div>
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                         <a href="/customers/{{ customer.pk }}/edit" class="btn btn-primary me-md-2">

@@ -17,17 +17,23 @@
         <div class="header-box px-3 pt-4 pb-4">
             <h1 class="fs-4 nav-logo">
                 <span class="text-black text-uppercase font-weight-bold">
-                    <a class="link-dark text-decoration-none" href="/templates/static">CRM BACKOFFICE</a>
+                    <a class="link-dark text-decoration-none" href="/">CRM BACKOFFICE</a>
                 </span>
             </h1>
         </div>
         <ul class="list-unstyled px-2">
-            {% if perms.products.view_product %}
+            {% if not perms.ads.view_adscompany %}
+            <li><a href="/ads/statistic/" class="bar-item text-decoration-none px-3 py-3 d-block">
+                <span><i class="fas fa-ad"></i></span><span class="ml-1"> Статистика рекламных компаний</span>
+            </a></li>
+            {% endif %}
+
+            {% if perms.service_product.view_product %}
             <li><a href="/products/" class="bar-item text-decoration-none px-3 py-3 d-block">
                 <span><i class="fas fa-microchip"></i></span><span class="ml-1"> Услуги</span>
             </a></li>
             {% endif %}
-            {% if perms.advertisements.view_advertisement %}
+            {% if perms.ads.view_adscompany %}
             <li><a href="/ads/" class="bar-item text-decoration-none px-3 py-3 d-block">
                 <span><i class="fas fa-ad"></i></span><span class="ml-1"> Рекламные компании</span>
             </a></li>
@@ -50,24 +56,72 @@
            <li>
                 <hr>
             </li>
-
-            {% if user.is_authenticated %}
-                <li><a href="/accounts/logout" class="bar-item text-decoration-none px-3 py-3 d-block">
-                    <span><i class="fas fa-sign-out-alt"></i></span><span class="px-1"> Выход</span>
-                </a></li>
-            {% else %}
-                <li><a href="/accounts/login" class="bar-item text-decoration-none px-3 py-3 d-block">
-                    <span><i class="fas fa-sign-in-alt"></i></span><span class="px-1"> Войти</span>
-                </a></li>
-            {% endif %}
+            <li><a href="/accounts/logout" class="bar-item text-decoration-none px-3 py-3 d-block">
+                <span><i class="fas fa-sign-out-alt"></i></span><span class="px-1"> Выход</span>
+            </a></li>
         </ul>
     </div>
 
     <div class="content px-3 pt-4 flex-grow-1">
+
+                {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
         {% block content %}{% endblock %}
+
+        <!-- Пагинация -->
+        {% if page_obj %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
     </div>
 </div>
-
+<script type="text/javascript" src="{% static 'js/message_removed.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
