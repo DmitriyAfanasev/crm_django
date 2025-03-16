@@ -18,13 +18,6 @@ logger = logging.getLogger("services")
 class ServiceProtocol(Protocol):
     """Класс задаёт интерфейсы для различных сервисов."""
 
-    @staticmethod
-    def _check_active_user(user_id: int) -> None:
-        """
-        Проверка, что пользователь активен.
-        Метод должен быть реализован в подклассе.
-        """
-        raise NotImplementedError("Must be implemented by subclass")
 
     @staticmethod
     def _check_permissions_user(user: User) -> None:
