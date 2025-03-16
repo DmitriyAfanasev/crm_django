@@ -10,7 +10,7 @@ class BaseProductDTO(BaseDTO):
     Data Transfer Object (DTO) для представления базовой информации об услуге.
 
     Attributes:
-        pk (Optional[int]): id услуги. Может быть None, если ещё не создана.
+        id (Optional[int]): id услуги. Может быть None, если ещё не создана.
         name (str): Название.
         description (str): Описание.
         cost (float): Стоимость.
@@ -27,7 +27,7 @@ class BaseProductDTO(BaseDTO):
     discount: int
     status: str
     archived: bool
-    pk: Optional[int] = None
+    id: Optional[int] = None
     created_by: Optional[User] = None
     updated_by: Optional[User] = None
 
@@ -48,8 +48,8 @@ class ProductUpdateDTO(BaseProductDTO):
     """
     Data Transfer Object (DTO) для обновления продукта.
 
-    Наследует все атрибуты ProductCreateDTO, но требует указания pk и updated_by.
+    Наследует все атрибуты ProductCreateDTO, но требует указания id и updated_by.
     """
 
-    pk: int
+    id: int
     updated_by: User

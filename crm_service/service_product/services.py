@@ -1,8 +1,9 @@
-from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils.translation import gettext_lazy as _
+import re
+import logging
 
-from pydantic import Field
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 
 from utils.mixins.services_mixins import BadWordsMixin
 from .dto_product import ProductCreateDTO, ProductUpdateDTO
@@ -10,93 +11,114 @@ from .models import Product
 from core.check_user_service import UserRoleService
 
 
-# TODO можно будет добавить рейтинг для заказчиков, и если у них хороший рейтинг, делать скидку или брать их заказы из очереди первыми.
+logger = logging.getLogger("services")
+
+
 class ProductService(BadWordsMixin, UserRoleService):
-    name: str = Field(min_length=3, max_length=100)
-    description: str
-    cost: float
-    discount: int
-    status: str
-    archived: bool
-    created_by: int
 
-    @staticmethod
-    def _check_name_uniqueness(
-        name: str,
-        error_message: str,
-    ) -> None:
-        """Проверяет уникальность имени поля в базе данных."""
-        ProductService._check_existing_name_by_field_in_db(Product, name, error_message)
+    @classmethod
+    def create_product(cls, dto: ProductCreateDTO) -> Product:
+        """Создание услуги."""
+        try:
+            cls.validate_product_data(dto)
+        except ValidationError as error:
+            logger.error(f"Validation error while creating product: {error}")
+            raise
 
-    @staticmethod
-    def _check_discount(cost: float, discount: int) -> None:
+        with transaction.atomic():
+            product = Product.objects.create(**dto.to_dict())
+            product.save()
+
+        return product
+
+    @classmethod
+    def update_product(cls, dto: ProductUpdateDTO) -> Product:
+        """Обновление услуги"""
+        try:
+            cls.validate_product_data(dto)
+        except ValidationError as error:
+            logger.error(f"Validation error while creating product: {error}")
+            raise
+
+        with transaction.atomic():
+            Product.objects.filter(id=dto.id).update(**dto.to_dict())
+            product = Product.objects.get(id=dto.id)
+            product.save()
+
+        return product
+
+    @classmethod
+    def validate_name(cls, name: str) -> str:
+        """Валидация имени услуги."""
+        if len(name) < 3:
+            raise ValidationError(
+                _("Name must be at least 3 characters long."), code="name"
+            )
+
+        invalid_pattern = re.compile(r"[!@#$%^&*()\"`{}/\\]")
+        invalid_chars = invalid_pattern.findall(name)
+        if invalid_chars:
+            raise ValidationError(
+                _(
+                    f"Name contains invalid characters: [ {'  '.join(set(invalid_chars))} ]"
+                ),
+                code="name",
+            )
+
+        if name.isdigit():
+            raise ValidationError(
+                _("The service name should not consist only of numbers."), code="name"
+            )
+
+        numbers_pattern = re.compile(r"\d+")
+        numbers_found = numbers_pattern.findall(name)
+        if len(numbers_found) > 1:
+            raise ValidationError(
+                _("Name must contain no more than one number."), code="name"
+            )
+
+        return name
+
+    @classmethod
+    def validate_description(cls, description: str) -> str:
+        """Валидация описания услуги."""
+        if len(description) < 10:
+            raise ValidationError(
+                _("Description must be at least 10 characters long."),
+                code="description",
+            )
+        return description
+
+    @classmethod
+    def validate_cost(cls, cost: float) -> float:
+        """Валидация стоимости услуги."""
+        if cost < 0:
+            raise ValidationError(_("Cost must be a positive number."), code="cost")
+        elif cost == 0:
+            raise ValidationError(_("Do you want to work for free?"), code="cost")
+        return cost
+
+    @classmethod
+    def validate_discount(cls, cost: float, discount: int) -> None:
         """Проверяет корректность скидки."""
         if discount >= cost:
-            raise ValueError(_("Discount cannot be greater than or equal to cost."))
-
-    @staticmethod
-    def _check_status_and_archived(status: str, archived: bool) -> None:
-        """
-        Проверяет, что продукт не может быть одновременно активным и архивированным.
-        """
-        if archived and status == "active":
-            raise ValueError(_("Archived products cannot be active."))
-
-    @staticmethod
-    def _check_user(user_id: int) -> None:
-        """
-        Проверяет активность и роль пользователя.
-
-        :param user_id: ID пользователя.
-        :raises ValueError: Если пользователь не существует или не имеет нужной роли.
-        """
-        ProductService._check_active_user(user_id=user_id)
-        try:
-            user = User.objects.get(id=user_id)
-            service_name = ProductService._get_service_name()
-            ProductService._check_user_role(user=user, service_name=service_name)
-        except ObjectDoesNotExist:
-            raise ValueError(_("User does not exist."))
-
-    @staticmethod
-    def checking_before_creation(data_from_request: ProductCreateDTO) -> None:
-        """
-        Проверяет данные перед созданием продукта.
-
-        :param data_from_request: Данные для создания продукта.
-        :raises ValueError: Если данные не прошли проверку.
-        """
-        bad_words: set[str] = ProductService._get_bad_words()
-
-        ProductService._check_name_uniqueness(
-            data_from_request.name, _("This service is already registered.")
-        )
-        ProductService._check_for_bad_words(data_from_request.name, bad_words)
-        ProductService._check_for_bad_words(data_from_request.description, bad_words)
-        ProductService._check_discount(
-            data_from_request.cost, data_from_request.discount
-        )
-        ProductService._check_status_and_archived(
-            data_from_request.status, data_from_request.archived
-        )
-        ProductService._check_user(data_from_request.created_by.pk)
-
-    @staticmethod
-    def checking_before_update(data_from_request: ProductUpdateDTO) -> None:
-        current_product = Product.objects.get(pk=data_from_request.pk)
-
-        if current_product.name != data_from_request.name:
-            ProductService._check_name_uniqueness(
-                data_from_request.name,
-                _("This service is already registered."),
+            raise ValidationError(
+                _("Discount cannot be greater than or equal to cost."), code="discount"
             )
-        bad_words: set[str] = ProductService._get_bad_words()
-        ProductService._check_for_bad_words(data_from_request.name, bad_words)
-        ProductService._check_for_bad_words(data_from_request.description, bad_words)
-        ProductService._check_discount(
-            data_from_request.cost, data_from_request.discount
-        )
-        ProductService._check_status_and_archived(
-            data_from_request.status, data_from_request.archived
-        )
-        ProductService._check_user(data_from_request.updated_by.pk)
+
+    @classmethod
+    def validate_status_and_archived(cls, status: str, archived: bool) -> None:
+        """Проверяет, что продукт не может быть одновременно активным и архивированным."""
+        if archived and status == "active":
+            raise ValidationError(
+                _("Archived products cannot be active."), code="status"
+            )
+
+    @classmethod
+    def validate_product_data(cls, dto: ProductCreateDTO | ProductUpdateDTO) -> None:
+        """Проверяет данные перед созданием или обновлением услуги."""
+        cls.validate_name(dto.name)
+        cls.validate_description(dto.description)
+        cls.validate_cost(dto.cost)
+        cls.validate_discount(dto.cost, dto.discount)
+        cls.validate_status_and_archived(dto.status, dto.archived)

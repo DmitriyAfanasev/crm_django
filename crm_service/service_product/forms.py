@@ -1,11 +1,13 @@
 import re
 
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from django import forms
 
 from core.base import BaseForm
 from .models import Product
+from .services import ProductService
 
 
 class ProductCreateForm(BaseForm):
@@ -28,43 +30,20 @@ class ProductCreateForm(BaseForm):
             ),
         }
 
-    def clean_name(self) -> str:
-        name_service: str = self.cleaned_data["name"]
-        if len(name_service) < 3:
-            raise forms.ValidationError(_("Name must be at least 3 characters long."))
+    def clean(self) -> dict:
+        """Общая валидация формы."""
+        cleaned_data = super().clean()
+        cost = cleaned_data.get("cost")
+        discount = cleaned_data.get("discount")
+        status = cleaned_data.get("status")
+        archived = cleaned_data.get("archived")
 
-        invalid_pattern: re.Pattern = re.compile(r"[!@#$%^&*()\"`{}/\\]")
-        invalid_chars: list[str] = invalid_pattern.findall(name_service)
-        if invalid_chars:
-            raise forms.ValidationError(
-                _(
-                    f"Name contains invalid characters: [ {'  '.join(set(invalid_chars))} ]"
-                )
-            )
-        if name_service.isdigit():
-            raise forms.ValidationError(
-                _("The service name should not consist only of numbers.")
-            )
+        try:
+            if cost is not None and discount is not None:
+                ProductService.validate_discount(cost, discount)
+            if status is not None and archived is not None:
+                ProductService.validate_status_and_archived(status, archived)
+        except ValidationError as error:
+            self.add_error(error.code, error.message)
 
-        numbers_pattern = re.compile(r"\d+")
-        numbers_found = numbers_pattern.findall(name_service)
-        if len(numbers_found) > 1:
-            raise forms.ValidationError(_("Name must contain no more than one number."))
-
-        return name_service
-
-    def clean_description(self) -> str:
-        description_service: str = self.cleaned_data["description"]
-        if len(description_service) < 10:
-            raise forms.ValidationError(
-                _("Description must be at least 10 characters long.")
-            )
-        return description_service
-
-    def clean_cost(self) -> float:
-        cost: float = self.cleaned_data["cost"]
-        if cost < 0:
-            raise forms.ValidationError(_("Cost must be a positive number."))
-        elif cost == 0:
-            raise forms.ValidationError(_("Do you want to work for free?"))
-        return cost
+        return cleaned_data
