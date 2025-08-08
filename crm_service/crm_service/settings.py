@@ -178,7 +178,7 @@ LOGGING = {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": os.path.join(BASE_DIR, "deleted-log"),
+            "filename": os.path.join(BASE_DIR, "deleted_models.log"),
             "formatter": "verbose",
         },
         "console": {

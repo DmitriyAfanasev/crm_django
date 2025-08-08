@@ -23,8 +23,10 @@ from django.urls import path, include
 from .views import general_statistics
 
 
+
 # TODO добавить i18n_patterns
 urlpatterns = [
+    path("api/", include("api.urls")),
     path("", general_statistics, name="home"),
     path("accounts/", include("accounts.urls")),
     path("admin/", admin.site.urls),

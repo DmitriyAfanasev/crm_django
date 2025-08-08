@@ -5,6 +5,7 @@ from core.base import BaseDTO
 
 if TYPE_CHECKING:
     from service_product.models import Product
+    from models_as_description.promotion_channels import PromotionChannel
 
 
 @dataclass
@@ -28,7 +29,7 @@ class AdsCompanyDTO(BaseDTO):
 
     name: str
     product: "Product"
-    channel: str
+    channel: "PromotionChannel"
     budget: float
     country: str
     email: str

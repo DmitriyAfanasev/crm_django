@@ -37,7 +37,7 @@ class AdsCompany(TimestampMixin, ActorMixin):
         ordering: list[str] = ["name", "created_at"]
         verbose_name: str = _("Company")
         verbose_name_plural: str = _("Companies")
-        unique_together: tuple[str, ...] = (("name", "website"),)
+        unique_together: tuple[str, ...] = ("name", "website")
 
     name: CharField = models.CharField(
         max_length=100,
