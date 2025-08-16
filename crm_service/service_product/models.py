@@ -12,6 +12,21 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from utils.mixins import TimestampMixin, ActorMixin
 
 
+def get_default_category():
+    # импорт здесь, чтобы избежать циклов
+    from service_product.models import Category
+    obj, _ = Category.objects.get_or_create(
+        title="Other",  # хранить лучше не перевод, а константу
+        defaults={"description": "A common category for all products"},
+    )
+    return obj.pk  # можно вернуть и сам объект, и pk — FK примет оба варианта
+
+
+class Category(models.Model):
+    title = CharField(max_length=255, verbose_name=_("Title"))
+    description = TextField(blank=True, verbose_name=_("Description"))
+
+
 class Product(TimestampMixin, ActorMixin):
     """
     Модель услуги для клиентов.
@@ -66,6 +81,13 @@ class Product(TimestampMixin, ActorMixin):
     archived: BooleanField = models.BooleanField(
         default=False,
         verbose_name=_("Archived"),
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_DEFAULT,
+        default=get_default_category,
+        related_name="category",
+        verbose_name=_("Category"),
     )
 
     class Meta:

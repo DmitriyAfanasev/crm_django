@@ -23,6 +23,7 @@ django-ninja = "^1.4.3"
 black = "^25.1.0"
 pytest = "^8.3.4"
 pylint-django = "^2.6.1"
+django-debug-toolbar = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core"]

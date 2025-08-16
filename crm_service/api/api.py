@@ -5,6 +5,7 @@ from ninja import NinjaAPI
 from ninja.responses import Response
 
 
+from api.routers.product_router import router as product_router
 from api.schemas.ads_schemas import (
     AdsCompanyResponseSchema1,
     AdsCompanyCreateSchemaModel,
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
     from django.http import HttpRequest
 
 api = NinjaAPI()
+api.add_router(router=product_router, prefix="/products")
 
 
 @api.get("/company_schema")
