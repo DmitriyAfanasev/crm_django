@@ -1,6 +1,8 @@
 from enum import Enum
-from django.utils.translation import gettext_lazy as _
 from typing import List, Tuple, TypeAlias
+
+from django.utils.translation import gettext_lazy as _
+
 
 CountryCode: TypeAlias = str
 NameOfCountry: TypeAlias = str
@@ -19,7 +21,7 @@ class Country(Enum):
 
     @classmethod
     def choices(cls) -> CountryChoices:
-        """Возвращает список кортежей (код страны, название страны) для использования в полях выбора."""
+        """Возвращает список кортежей для использования в полях выбора."""
         return [(country.name, country.value) for country in cls]
 
 

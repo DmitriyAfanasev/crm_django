@@ -408,6 +408,9 @@ logging-format-style=old
 # function parameter format.
 logging-modules=logging
 
+[MASTER]
+load-plugins=pylint_django
+django-settings-module=crm_service.settings
 
 [MESSAGES CONTROL]
 
@@ -436,12 +439,9 @@ disable=raw-checker-failed,
         suppressed-message,
         useless-suppression,
         deprecated-pragma,
-        use-implicit-booleaness-not-comparison-to-string,
-        use-implicit-booleaness-not-comparison-to-zero,
         use-symbolic-message-instead,
-        missing-module-docstring,
-        too-many-ancestors,
-
+        use-implicit-booleaness-not-comparison-to-string,
+        use-implicit-booleaness-not-comparison-to-zero
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -648,4 +648,3 @@ init-import=no
 # List of qualified module names which can have objects that can redefine
 # builtins.
 redefining-builtins-modules=six.moves,past.builtins,future.builtins,builtins,io
-ignore-paths=.*/migrations/*,.*/settings.py,.*/manage.py,.*/apps.py

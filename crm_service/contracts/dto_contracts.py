@@ -1,8 +1,10 @@
 from datetime import datetime
-from django.contrib.auth.models import User
-from django.core.files.base import File
 from dataclasses import dataclass
 from typing import Optional, TYPE_CHECKING
+
+from django.contrib.auth.models import User
+from django.core.files.base import File
+
 from core.base import BaseDTO
 
 if TYPE_CHECKING:
@@ -15,7 +17,7 @@ class ContractDTO(BaseDTO):
     Data Transfer Object (DTO) для представления контракта.
 
     Attributes:
-        id (Optional[int]): Уникальный идентификатор контракта. Может быть None для новых контрактов.
+        id (Optional[int]): Уникальный идентификатор контракта. Может быть None у новых контрактов.
         name (str): Название контракта.
         product (Product): Продукт, связанный с контрактом.
         file_document (File): Файл документа контракта.

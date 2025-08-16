@@ -30,7 +30,9 @@ SECRET_KEY = "django-insecure-q9bjfp!*wof=7&$ao9jevru#axff7k53g=ua97i!f)mko5j48g
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
 
 # Application definition
 
@@ -50,6 +52,7 @@ INSTALLED_APPS = [
     "contracts.apps.ContractsConfig",
     # сторонние библиотеки
     "phonenumber_field",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -60,6 +63,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "crm_service.urls"
@@ -178,7 +182,7 @@ LOGGING = {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": os.path.join(BASE_DIR, "deleted-log"),
+            "filename": os.path.join(BASE_DIR, "deleted_models.log"),
             "formatter": "verbose",
         },
         "console": {

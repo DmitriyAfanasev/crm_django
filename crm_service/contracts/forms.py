@@ -4,9 +4,10 @@ from django.core.files import File
 from django.utils.translation import gettext_lazy as _
 from django import forms
 
+from core.base import BaseForm
+
 from .models import Contract
 from .services import ContractService
-from core.base import BaseForm
 
 
 class ContractForm(BaseForm):
@@ -54,7 +55,7 @@ class ContractForm(BaseForm):
 
     def clean_file_document(self) -> File:
         """
-        Проверка, что файл подходящего расширения, а так же его размер не более 10 МБ (по умолчанию).
+        Проверка, что файл подходящего расширения, и его размер не более 10 МБ (по умолчанию).
         """
         file_document: File = self.cleaned_data["file_document"]
         ContractService.validate_file(file_document)

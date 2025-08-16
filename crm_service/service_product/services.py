@@ -1,20 +1,28 @@
 import re
 import logging
+from typing import TYPE_CHECKING
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
-
+from core.check_user_service import UserRoleService
 from utils.mixins.services_mixins import BadWordsMixin
 from .dto_product import ProductCreateDTO, ProductUpdateDTO
 from .models import Product
-from core.check_user_service import UserRoleService
 
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
 
 logger = logging.getLogger("services")
 
 
 class ProductService(BadWordsMixin, UserRoleService):
+    """Сервис для работы с услугами.
+
+    Обеспечивает бизнес-логику создания и обновления услуг,
+    включая проверку прав доступа и валидацию данных.
+    """
 
     @classmethod
     def create_product(cls, dto: ProductCreateDTO) -> Product:
@@ -22,7 +30,7 @@ class ProductService(BadWordsMixin, UserRoleService):
         try:
             cls.validate_product_data(dto)
         except ValidationError as error:
-            logger.error(f"Validation error while creating product: {error}")
+            logger.error("Validation error while creating product: %s", error)
             raise
 
         with transaction.atomic():
@@ -37,7 +45,7 @@ class ProductService(BadWordsMixin, UserRoleService):
         try:
             cls.validate_product_data(dto)
         except ValidationError as error:
-            logger.error(f"Validation error while creating product: {error}")
+            logger.error("Validation error while creating product: %s", error)
             raise
 
         with transaction.atomic():
@@ -46,6 +54,12 @@ class ProductService(BadWordsMixin, UserRoleService):
             product.save()
 
         return product
+
+    @classmethod
+    def _check_permissions_user(cls, user: "User") -> None:
+        """Проверка прав пользователя перед созданием контракта."""
+        service_name: str = cls._get_service_name()
+        cls._check_user_role(user, service_name)
 
     @classmethod
     def validate_name(cls, name: str) -> str:
@@ -122,3 +136,5 @@ class ProductService(BadWordsMixin, UserRoleService):
         cls.validate_cost(dto.cost)
         cls.validate_discount(dto.cost, dto.discount)
         cls.validate_status_and_archived(dto.status, dto.archived)
+        user = dto.created_by or dto.updated_by
+        cls._check_permissions_user(user)

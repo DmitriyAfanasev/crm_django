@@ -5,6 +5,7 @@ from core.base import BaseDTO
 
 if TYPE_CHECKING:
     from service_product.models import Product
+    from models_as_description.promotion_channels import PromotionChannel
 
 
 @dataclass
@@ -13,7 +14,8 @@ class AdsCompanyDTO(BaseDTO):
     Data Transfer Object (DTO) для представления рекламной компании.
 
     Атрибуты:
-        id (Optional[int]): Уникальный идентификатор рекламной компании. Может быть None для новых компаний.
+        id (Optional[int]): Уникальный идентификатор рекламной компании.
+                Может быть None для новых компаний.
         name (str): Название рекламной компании.
         product (Product): Продукт, связанный с рекламной компанией.
         channel (str): Канал, через который осуществляется реклама.
@@ -27,7 +29,7 @@ class AdsCompanyDTO(BaseDTO):
 
     name: str
     product: "Product"
-    channel: str
+    channel: "PromotionChannel"
     budget: float
     country: str
     email: str

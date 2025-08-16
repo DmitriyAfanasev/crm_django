@@ -75,9 +75,9 @@ class CustomerUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
     def form_valid(self, form: CustomerForm) -> HttpResponse:
         """Добавляет информацию о пользователе, обновившего данные активного клиента."""
         response = super().form_valid(form)
-        if form.is_valid():
-            form.instance.updated_by = User.objects.get(pk=self.request.user.pk)
-            return response
+
+        form.instance.updated_by = User.objects.get(pk=self.request.user.pk)
+        return response
 
     def get_success_url(self) -> HttpResponseRedirect:
         """Перенаправление на страницу деталей клиента."""

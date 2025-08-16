@@ -15,12 +15,15 @@ django-filter = "^25.1"
 psycopg = "^3.2.4"
 pydantic = {extras = ["email"], version = "^2.10.6"}
 django-phonenumber-field = {extras = ["phonenumbers"], version = "^8.0.0"}
+pytest-django = "^4.10.0"
+django-ninja = "^1.4.3"
 
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
 pytest = "^8.3.4"
-pylint = "^3.3.4"
+pylint-django = "^2.6.1"
+django-debug-toolbar = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core"]

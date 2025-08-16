@@ -71,11 +71,11 @@ class Lead(TimestampMixin, ActorMixin):
             Иван Сергеевич Иванов => И. С. Иванов
             Иван Иванов => И. Иванов
         """
-        first_name_initial = f"{self.first_name[0].capitalize()}."
-        middle_name_initial = (
-            f"{self.middle_name[0].capitalize()}." if self.middle_name else ""
-        )
-        return f"{first_name_initial} {middle_name_initial} {self.last_name}".strip()
+        if self.middle_name:
+            return (
+                f"{self.first_name[0]}. {self.middle_name[0]}. {self.last_name}".strip()
+            )
+        return f"{self.first_name[0]}. {self.last_name}".strip()
 
     def __str__(self) -> str:
         """Возвращает полное имя лида."""

@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
     help = "Initialize standard promotion channels in the database."
 
-    def handle(self, *args, **kwargs):
+    def handle(self, *args, **kwargs) -> None:
         standard_channels = [
             {
                 "name": _("Social Media"),
@@ -75,7 +75,7 @@ class Command(BaseCommand):
         ]
 
         for channel_data in standard_channels:
-            channel, created = PromotionChannel.objects.get_or_create(
+            __, created = PromotionChannel.objects.get_or_create(
                 name=channel_data["name"],
                 defaults={"description": channel_data["description"]},
             )

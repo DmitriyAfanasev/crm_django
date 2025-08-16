@@ -65,7 +65,7 @@ class Command(BaseCommand):
     def add_permission_to_group(self, perm, group, model_to_app_label):
         """Добавляет указанные права доступа указанной группе."""
         try:
-            action, model_name = perm.split("_", 1)
+            _, model_name = perm.split("_", 1)
             app_label, model = model_to_app_label.get(model_name, (None, None))
             if not app_label or not model:
                 raise ValueError(f"Неправильное имя модели: {model_name}")
